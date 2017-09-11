@@ -197,7 +197,7 @@ The satellite data used for the ground land classification are described in in t
     \begin{subtable}{.45\textwidth}
         \centering
         \begin{tabular}{@{}lp{1.8cm}p{2cm}l@{}}\toprule
-            Band & Resolution [m] & Wavelength range [nm] & Domain \\\hline
+            Band & Resolution after pan-sharpening [m] & Wavelength range [nm] & Domain \\\hline
             B0 & 1.5 & 450 - 520 & Blue \\
             B1 & 1.5 & 530 - 590 & Green \\
             B2 & 1.5 & 625-695 & Red \\
@@ -209,7 +209,7 @@ The satellite data used for the ground land classification are described in in t
     \caption{Spatial and spectral resolution of satellite data. VNIR = Visible and Near Infrared, SWIR = Short Wave Infrared}
     \label{table:bands}
 \end{table}
-Regarding Sentinel-2, only the 10 bands having a resolution of 10 or 20 meters were used and in practice the bands having a resolution of 20 meters were up-scaled to 10 m resolution.\\
+Regarding Sentinel-2, only the 10 bands having a resolution of 10 or 20 meters were used and in practice the bands having a resolution of 20 meters were up-scaled to 10 m resolution. Regarding SPOT-6, the resolution was obtained by using a fifth monochromatic band for pan-sharpening. \\
 
 Sentinel-2 data was downloaded on several dates in order to mitigate seasonal effects on land cover classification. Table \ref{table:dates} lists the used dates for each satellite and test region.
 \begin{table}[H]
@@ -255,7 +255,7 @@ All classifiers presented below have been applied to a zone spanning in the Fini
 \section{Methodology}\label{sec:method}
 \subsection{Initial Fusion}
 
-The data sets were first classified individually before fusion: The Sentinel-2 image was classified using all of its 13 bands (\textit{dates}) using a Random Forest classifier with \textit{50'000} samples and 100 trees \parencite{Breiman2001}. The SPOT-6 image was classified using a Deep Convolutional Neural Network described in \cite{postadjian_investigating_2017}. Both classifiers produced membership probabilities for the 5 classes proposed in the introduction (building, roads, water, forest and other vegetation).\\
+The data sets were first classified individually before fusion: The Sentinel-2 image was classified using 10 bands of each date (tables \ref{table:bands_s2}, \ref{table:dates}) using a Random Forest classifier with 50'000 samples per class and 100 trees \parencite{Breiman2001}. The SPOT-6 image was classified using a Deep Convolutional Neural Network on the four bands of the SPOT-6 image descripbed in tables \ref{table:bands_spot}, \ref{table:dates} (\cite{postadjian_investigating_2017}). Both classifiers produced membership probabilities for the 5 classes described in the introduction (building, roads, water, forest and other vegetation).\\
 
 The Random Forest classifier was trained using ground truth data of the freely available BDTOPO and RPG databases, from which a ground truth map of 5 class labels was derived (\cite{bdtopo,RPG}, fig. \ref{fig:vt}).
 
@@ -302,11 +302,11 @@ $n$ being the number of sources and $H_{\alpha QE}$ a fuzziness measure called $
 
 The following fusion rules based on fuzzy logic were considered:
 \begin{enumerate}
-    \item Minimum rule as the intersection of two fuzzy sets $P_A$ and $P_B$, given by the minimum of their membership probabilities:
+    \item Minimum rule as the intersection of two fuzzy sets $P_A$ and $P_B$, given by the minimum of their membership probabilities (conjunctive behaviour):
     \begin{equation}
         \forall A\in\mathcal{L} \;\;\; (P_A\cap P_B)(x) = P_{fusion}(x) =\min\big(P_A(x),P_B(x)\big)
     \end{equation}
-    \item Maximum rule as the union between the two fuzzy sets $P_A$ and $P_B$, given by the maximum of their membership probabilities:
+    \item Maximum rule as the union between the two fuzzy sets $P_A$ and $P_B$, given by the maximum of their membership probabilities (disjunctive behaviour):
     \begin{equation}
         \forall A\in\mathcal{L} \;\;\; (P_A\cup P_B)(x) = P_{fusion}(x)=\max\big(P_A(x),P_B(x)\big)
     \end{equation}
@@ -314,7 +314,7 @@ The following fusion rules based on fuzzy logic were considered:
     \begin{equation}\label{eq:compro}
         P_{fusion}(x)=
         \begin{cases}
-            \max\Big(T_1,\min\big(T_2,(1-K)\big)\Big)& \text{if } (1-K)\neq 0\\
+            \max\Big(T_1,\min\big(T_2,(1-K)\big)\Big)& \text{if } (1-K)\neq q\\
             \max\Big(P_A(x),P_B(x)\Big) &\text{if }(1-K)= 1
         \end{cases}
     \end{equation}
@@ -379,12 +379,11 @@ $c,d\in\mathcal{L}$ being compound classes with $c\cap d =\emptyset$. The fusion
 \end{equation}
 
 \subsubsection{Fusion by Classification}
-Supervised Classification Methods were used to perform a fusion on decision level. Following models were trained on the ground truth derived from the BDTOPO and RPG databases, using the LIBSVM and Open CV libraries (\cite{bdtopo,RPG,libsvm,opencv}):
-% TODO test filling gaps with roads
+Supervised Classification Methods were used to perform a fusion on decision level. Following models were trained on the ground truth derived from the BDTOPO and RPG databases (\cite{bdtopo,RPG}), using the LIBSVM and OpenCV libraries (\cite{libsvm,opencv}) :
 \begin{enumerate}
-    \item Random Forest (RF), with 10'000 training samples (\cite{opencv})% TODO nb trees
-    \item Support Vector Machine (SVM) with a linear kernel ($u'\times v$), with 10'000 training samples (\cite{libsvm})
-    \item SVM with a radial basis kernel function: $\exp(-\gamma*|u-v|^2)$, with 500 training samples (\cite{libsvm}). Parameters of the SVM model were optimized using cross-validation. % TODO cite
+    \item Random Forest (RF), with 10'000 training samples per class and 100 trees (\cite{opencv})
+    \item Support Vector Machine (SVM) with a linear kernel ($u'\times v$), with 10'000 training samples per class (\cite{libsvm})
+    \item SVM with a radial basis kernel function: $\exp(-\gamma*|u-v|^2)$, with 500 training samples per class (\cite{libsvm}). Parameters of the SVM model were optimized using cross-validation. % TODO cite
 \end{enumerate}
 Each classifier was trained using the ground truth from the BDTOPO and RPG databases \cite{bdtopo,RPG}. Since the ground truth could contained gaps between buildings, the classifiers tended to aggregate individual buildings as there was no training data available around building. A sixth arbitrary buffer class extending 10 m radius around each building was added to the ground truth to preserve more details of the buildings during classification (fig. \ref{fig:vt_buffer}). Since only building labels were extracted for the subsequent steps, the other class labels as well as the buffer label could be ignored.
 
@@ -434,7 +433,7 @@ The data term is a fit-to-data attachment term which models the probability dist
 f(t)&=-\log(x)\\
 f(t)&=1-x
 \end{align}
-The regularization term $E_{reg}$ was decomposed in two components, one being a Pott's model to prefer smoother label changes and a term attached to the contrast in the original image.
+The regularization term $E_{reg}$ was decomposed in two components, one being a Potts model (\cite{schindler_overview_2012}) to prefer smoother label changes and a term attached to the contrast in the original image.
 \begin{align}
     E_{reg}(C(x)=C(y)&=0\\ 
     E_{reg}(C(y)\neq C(y))&=(1-\gamma)+\gamma V(x,y,\varepsilon)
@@ -696,6 +695,52 @@ The regularization does its job smoothing out small noisy patches and yielding a
 Results using the dilated binary class probabilities from the regularization and the binary Sentinel-2 class probabilities are shown in figure \ref{fig:regul_fusion}.
 \begin{figure}[H]
     \centering
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=.9\textwidth]{binary_1_bati}
+        \caption{Buildings from regulation}
+        {\vspace{3mm}
+            \small\centering
+            \fcolorbox{black}{red}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad Buildings
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=.9\textwidth]{binary_2_dist}
+        \caption{Distance around each building}
+        {\vspace{3mm}
+            \small\centering
+            \fcolorbox{black}{black}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad d=0 
+            \fcolorbox{black}{white}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad d=max
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=.9\textwidth]{binary_3_bati-dist}
+        \caption{Distance and buildings superposed}
+        {\vspace{3mm}
+            \small\centering
+            \fcolorbox{black}{black}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad d=0 
+            \fcolorbox{black}{white}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad d=max
+             \fcolorbox{black}{red}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad buildings
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=.9\textwidth]{binary_4_proba_regul_urbain}
+        \caption{Probability to be in artificialized area as linearly decreasing distance function around buildings}
+        {\vspace{3mm}
+            \small\centering
+            \fcolorbox{black}{black}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad P(a)=0 
+            \fcolorbox{black}{white}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad P(a)=1
+        }
+    \end{subfigure}
+    \caption{Urban probability extraction}
+    \label{fig:regul_fusion_steps}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
     \foreach \n/\captiontext in {classif_regul_urbain/Input: Dilated binary regularization result,
     classif_S2_urbain/Input: Sentinel-2 binary classification,
     classif_Fusion_Min/Fusion by Min rule,
@@ -878,9 +923,9 @@ To do
 
 \begin{figure}[H]
     \centering
-    \foreach \n/\captiontext in {rf/Random Forest (10000 training samples),
-    svmt0/SVM t2 kernel (500 training samples),
-    svmt2/SVM t0 kernel (1000 training samples)
+    \foreach \n/\captiontext in {rf/Random Forest (10000 training samples per class),
+    svmt0/SVM t2 kernel (500 training samples per class),
+    svmt2/SVM t0 kernel (1000 training samples per class)
     }{
     \begin{subfigure}{0.49\textwidth}
         \centering
