@@ -2,8 +2,8 @@
 \def\MATISfileversion{1,0}
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{MATISpdfhisto}
-       [\MATISfiledate\space v\MATISfileversion\space
-         Copyright IGN]
+[\MATISfiledate\space v\MATISfileversion\space
+Copyright IGN]
 \newif\if@MATISfrench \@MATISfrenchfalse
 \newif\if@tone@encoding
 \newif\if@no@inputenc \@no@inputencfalse
@@ -24,12 +24,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \if@no@inputenc
 \else
-  \RequirePackage[utf8]{inputenc}
-  \if@tone@encoding
-     \RequirePackage[T1]{fontenc}
-   \else
-     \RequirePackage[OT1]{fontenc}
-  \fi
+\RequirePackage[utf8]{inputenc}
+\if@tone@encoding
+\RequirePackage[T1]{fontenc}
+\else
+\RequirePackage[OT1]{fontenc}
+\fi
 \fi
 %% Pour avoir de la couleur dans le titre
 \RequirePackage{color}
@@ -38,27 +38,27 @@
 %%\usepackage[light,firsttwo]{draftcopy}
 %%
 \@ifundefined{pdfoutput}{
-\RequirePackage[dvips]{graphicx}
-\RequirePackage{textcomp}
-\def\@logoext{ps}}%
+	\RequirePackage[dvips]{graphicx}
+	\RequirePackage{textcomp}
+	\def\@logoext{ps}}%
 {\RequirePackage[pdftex]{graphicx}
-\def\textdegree{o}
-\def\@logoext{pdf}}
+	\def\textdegree{o}
+	\def\@logoext{pdf}}
 \@twosidetrue
 \newcommand\twentytb{\fontencoding\psenc\fontfamily{ptm}\fontseries{b}%
-   \fontshape{it}\fontsize{\@xxpt}{25pt}\selectfont}
+	\fontshape{it}\fontsize{\@xxpt}{25pt}\selectfont}
 \newcommand\twentytbb{\fontencoding\psenc\fontfamily{ptm}\fontseries{b}%
-   \fontshape{n}\fontsize{\@xxpt}{25pt}\selectfont}
+	\fontshape{n}\fontsize{\@xxpt}{25pt}\selectfont}
 \newcommand\fifteentb{\fontencoding\psenc\fontfamily{ptm}\fontseries{b}%
-   \fontshape{n}\fontsize{15pt}{20pt}\selectfont}
+	\fontshape{n}\fontsize{15pt}{20pt}\selectfont}
 \newcommand\twelvetr{\fontencoding\psenc\fontfamily{ptm}\fontseries{m}%
-   \fontshape{n}\fontsize{12pt}{14pt}\selectfont}
+	\fontshape{n}\fontsize{12pt}{14pt}\selectfont}
 \newcommand\tentm{\fontencoding\psenc\fontfamily{ptm}\fontseries{m}%
-   \fontshape{n}\fontsize{18pt}{20pt}\selectfont}
+	\fontshape{n}\fontsize{18pt}{20pt}\selectfont}
 \newcommand\eighttm{\fontencoding\psenc\fontfamily{ptm}\fontseries{m}%
-   \fontshape{n}\fontsize{8pt}{10pt}\selectfont}
+	\fontshape{n}\fontsize{8pt}{10pt}\selectfont}
 \newcommand\tenhv{\fontencoding\psenc\fontfamily{phv}\fontseries{m}%
-   \fontshape{n}\fontsize{10pt}{12pt}\selectfont}
+	\fontshape{n}\fontsize{10pt}{12pt}\selectfont}
 \let\titlehead=\undefined
 \newcommand\titlehead[1]{\gdef\@titlehead{#1}}
 \newcommand\authorhead[1]{\gdef\@authorhead{#1}}
@@ -67,463 +67,334 @@
 \newbox\@myatxybox%
 \newif\if@myatxy\@myatxyfalse
 \long\def\myatxy(#1,#2)#3{\global\setbox\@myatxybox=\hbox
- {\unhbox\@myatxybox
-  \vtop to 0pt{\kern #2\hbox to 0pt{\kern #1\relax #3\hss}\vss}}%
- \global\@myatxytrue}
+	{\unhbox\@myatxybox
+		\vtop to 0pt{\kern #2\hbox to 0pt{\kern #1\relax #3\hss}\vss}}%
+	\global\@myatxytrue}
 \def\@usemyatxy{\if@myatxy{%
-  \if@twoside
-    \ifodd\count\z@
-         \let\@themargin\oddsidemargin
-    \else \let\@themargin\evensidemargin
-    \fi
-  \fi
-  \vtop to 0pt{\kern-\headsep \kern-\topmargin \kern-\headheight
-               \kern-1in \kern-\voffset
-    \hbox to 0pt{\kern-\@themargin \kern-1in \kern-\hoffset
-\unhbox\@myatxybox \hss}\vss}}%
-            \fi\global\@myatxyfalse}% --bg
+	\if@twoside
+	\ifodd\count\z@
+		\let\@themargin\oddsidemargin
+	\else \let\@themargin\evensidemargin
+	\fi
+	\fi
+	\vtop to 0pt{\kern-\headsep \kern-\topmargin \kern-\headheight
+		\kern-1in \kern-\voffset
+		\hbox to 0pt{\kern-\@themargin \kern-1in \kern-\hoffset
+			\unhbox\@myatxybox \hss}\vss}}%
+	\fi\global\@myatxyfalse}% --bg
 \toks0={\setbox255=\vbox{\@usemyatxy \unvbox255}}
 \output=\expandafter{\the\toks0\the\output}
 \def\foo{
-\let\par\@@par%
-  \ifnum\outputpenalty <-\@M\@specialoutput\else%
-  \@makecol\@opcol\@floatplacement\@startcolumn%
-  \@whilesw\if@fcolmade \fi{\@opcol\@startcolumn}\fi%
-  \global\vsize\ifnum\outputpenalty >-\@Miv \@colroom%
-                  \else \maxdimen\fi}%
-\newcommand\MATISNo[1]{%
-    \gdef\@MATISNo{#1}%
-    \count1=0#10
-    \count0=0#1
-    \divide\count1 by 10
-    \advance\count1 by -\count0
-    \ifnum \count0=0
-     \gdef\@MATISNo{????}\@latex@error{Ne pas mettre de numéro bidon: #1}\@eha\fi
-    \ifnum \count1=0 \else
-    \gdef\@MATISNo{????}\@latex@error{Ne pas mettre de numéro bidon: #1}\@eha\fi
-}
-\newcommand\@MATISNo{????}
-\newcommand\MATISdate[1]{\gdef\@MATISdate{#1}}\newcommand\@MATISdate{%
- \xdef\@MATISdate{
- \ifcase\the\month
- \or Janvier\or Février\or Mars\or Avril\or Mai\or Juin%
- \or Juillet\or Août\or Septembre\or Octobre\or Novembre\or Décembre\fi\space
- \number\the\year}%
- \@MATISdate%
- \@warning{*** Pas de \string\MATISdate \space :
-         \@MATISdate\space par défaut. ***}}
-\newcommand\MATISdatee[1]{\gdef\@MATISdatee{#1}}\newcommand\@MATISdatee{%
- \xdef\@MATISdatee{
- \ifcase\the\month
- \or January\or February\or March\or April\or May \or June%
- \or July\or August\or September\or October\or Novembre\or December\fi\space
- \number\the\year}%
- \@MATISdatee%
- \@warning{*** Pas de \string\MATISdatee \space :
-         \@MATISdatee\space par défaut. ***}}
-\newcommand\MATISauthor[1]{\gdef\@MATISauthor{#1}\gdef\@authorhead{#1}}
-\newcommand\MATISauthore[1]{\gdef\@MATISauthore{#1}}
-\newcommand\MATISauthormail[1]{\gdef\@MATISauthormail{#1}}
-\newcommand\@MATISauthor{??\@warning{***Il manque le nom d'auteur,
-   utilisez \string\MATISauthor{Prenom1 NOM1\string\and \space Prenom2 NOM
-   \string\and \space... ***}}}
-\newcommand\@MATISauthore{??\@warning{***Il manque le nom d'auteur,
-   utilisez \string\MATISauthore{Prenom1 NOM1\string\and \space Prenom2 NOM
-   \string\and \space... ***}}}
-\newcommand\MATISrefIGN[1]{\gdef\@MATISrefIGN{#1}}%Reference IGN du rapport
-%\newcommand\MATISdiffusion[1]{\gdef\@MATISdiffusion{#1}}%A reactiver pour avoir une liste de diffusion
-\newcommand\MATISavantpropos[1]{\gdef\@MATISavantpropos{#1}}%Avant propos sur le document
-\newcommand\MATIShistorique[1]{\gdef\@MATIShistorique{#1}}%historique des modifications
-\newcommand\MATISsignature[1]{\gdef\@MATISsignature{#1}}%signature, en cas de besoin
-\newcommand\MATIStitle[1]{\gdef\@MATIStitle{#1}}
-\newcommand\MATISetitle[1]{\gdef\@MATISetitle{#1}}
-\def\set@titlehead{{\def\tempa{french}\def\tempb{frenchb}%
-   \ifx\bbl@main@language\tempa\global\@MATISfrenchtrue\fi
-   \ifx\bbl@main@language\tempb\global\@MATISfrenchtrue\fi
-   \@ifundefined{ifFrench}{}{\global\@MATISfrenchtrue}%
-   \def\tempa{}%
-   \ifx\@titlehead\tempa \if@MATISfrench \gdef\@titlehead{\@MATIStitle} \else
-     \gdef\@titlehead{\@MATISetitle}\fi\fi}}
-\AtBeginDocument{\set@titlehead}
-\newcommand\@MATIStitle{??\@warning{*** Pas de titre français,
-     utilisez \string\MATIStitle. ***}}
-\newcommand\@MATISetitle{??\@warning{*** Pas de titre anglais,
-      utilisez \string\MATISetitle. ***}}
-\newcommand\MATISnote[1]{\begingroup
-  \let\protect\@unexpandable@protect
-  \xdef\@MATISnote{\@MATISnote \protect\footnotetext[0]{#1\par}}%
-  \endgroup}
-\newcommand\@MATISnote{}
-
-%Ancienne version affectation
-%\newcommand\@MATISaffiliation{IGN - LaSTIG - MATIS}
-%\newcommand\@MATISaffiliatione{IGN - LaSTIG - MATIS} % Pour l'anglais
-%\newcommand\@MATISaffiliationune{IGN - LaSTIG - MATIS} % Pour la page de garde
-
-%Nouvelle version affectation (permet de gerer un comportement par defaut tout en permettant de modifier l'affectation selon les cas
-\newcommand\MATISaffiliation[1]{\gdef\@MATISaffiliation{#1}}
-\newcommand\MATISaffiliatione[1]{\gdef\@MATISaffiliatione{#1}}
-\newcommand\MATISaffiliationune[1]{\gdef\@MATISaffiliationune{#1}}
-\newcommand\@MATISaffiliation{IGN - LaSTIG - MATIS}
-\newcommand\@MATISaffiliatione{IGN - LaSTIG - MATIS}
-\newcommand\@MATISaffiliationune{}
-%\newcommand\@MATISaffiliationune{(IGN/DT/SR/MATIS)}
-
-
-\newcommand\MATISnbpage[1]{\gdef\@MATISnbpage{#1}}
-\newcommand\@MATISnbpage{\@ifundefined{r@MATISlastpageofreport}{??}
-  {\pageref{MATISlastpageofreport}}}
-\newcommand\UR{
-    \gdef\@MATISURaddress{LaSTIG - de Recherche MATIS\\
-         Institut Géographique National,\\
-         73 Avenue de Paris\\
-         94165 Saint-Mandé Cedex (France)\\
-}
-    \gdef\@title@logo@name{logo.jpg}}
-\newcommand\@comspace{ : }
-\newif\if@mustprint
-\newcommand\lastMATISpage{%
-  \clearpage\thispagestyle{empty}%
-  \label{MATISlastpageofreport}
-  \addtocounter{page}{-1}
-  \null\vfill
-  \myatxy(1.5cm,183mm){\vbox{\hsize=18cm
-    \vskip1cm
-    \vbox to 4cm{%
-       \hrule\vfill
-        \begin{center}
-	  \includegraphics[width=0.1\columnwidth]{logo.jpg}\\
-	  {\bf LaSTIG MATIS} \\{\bf La}boratoire des {\bf S}ciences et {\bf T}echnologies de l'{\bf I}nformation {\bf G}éographique\\
-	  Institut National de l'Information Géographique et Forestière,\\
-          73 Avenue de Paris, 94165 Saint-Mandé Cedex (France)\\
-	 \tt{http://recherche.ign.fr/labos/matis}
-         \end{center}
-       \vfill\hrule}
-   \vskip5mm
-   }}
-   \clearpage
-}
-\AtEndDocument{\lastMATISpage}
-\newcommand\MATISresume[1]{%
-    \long\def\@resume{\noindent{\bf R\'esum\'e : }\french #1\par}}
-\newcommand\MATISabstract[1]{%
-    \long\def\@abstract{\noindent{\bf Abstract: }\english #1\par\french}}
-\MATISresume{Pas de résumé}
-\MATISabstract{No abstract}
-\newcommand\motcle[1]{%
-   \def\@motcle{\noindent{\bf Mots-cl\'es : } \french #1\par}}
-\newcommand\keyword[1]{%
-   \def\@keyword{\noindent{\bf Key-words: } \english #1\par\french}}
-\motcle{Pas de motclef}
-\keyword{No keywords}
-
-\let\resume=\MATISresume \let\abstract=\MATISabstract
-\let\MATISmotcle=\motcle \let\MATISkeyword=\keyword
-\def\@nothanks{\@ifnextchar[{\@xnothanks}{\@gobble}}
-\def\@xnothanks[#1]#2{\relax}
-\def\@xthanks[#1]#2{\orig@thanks{#2}%
-  \expandafter\edef\csname @footnote@#1\endcsname{\the\c@footnote}}
-\def\thanksref#1{\footnotemark[\csname @footnote@#1\endcsname]}
-
-\newcommand\ps@titrr{%
-  \def\@oddhead{\hbox to \textwidth{%
-%      \vskip1cm
-      \hfill
-      \vbox to \headheight{%
-	\hbox{
-	  \includegraphics[width=0.2\columnwidth]{logo.jpg}}\vss}%
-      \hfill
-   }}
-  \def\@oddfoot{\relax}
-   \let\@evenfoot\@oddfoot
-   \let\@evenhead\@oddhead
-}
-\newcommand\@out@UR{%
-  \setbox0\hbox to\textwidth{\vbox{%\hrule%
-      \begin{center}\tentm\@MATISURaddress\end{center}%
-   }}%
-  \dimen0=29cm
-  \advance\dimen0 -\ht0
-  \dimen1=1in
-  \advance\dimen1\oddsidemargin
-  \myatxy(\dimen1,\dimen0){\box0}%
-  \dimen1=1in
-  \advance\dimen1\topmargin
-  \advance\dimen1\headheight
-  \advance\dimen1\headsep
-  \advance\dimen1\textheight
-  \advance\dimen1\footskip
-  \ifdim \dimen1>\dimen0
-     \advance\dimen1 -\dimen0 \enlargethispage{-\dimen1}\fi}
-\newcommand\makeMATIS{\cpt@type=1{\@makeMATIS}}
-\newcount\cpt@type
-\cpt@type=1
-\newcommand\@makeMATIS{%
-   \global\let\makeMATIS\relax\global\let\makeRT\relax
-   \let\orig@thanks\thanks
-   \def\thanks{\@ifnextchar[ {\@xthanks}{\orig@thanks}}%
-   \@ifundefined{english}{
-        \def\french{\language=1}
-        \def\english{\language=0 }
-   }{}
-   \eval@theme
-   \def\and{ --- }
-   \@restonecolfalse
-   \if@twocolumn\@restonecoltrue\onecolumn\fi
-   \thispagestyle{empty}
-  \def\@makefnmark{\rlap{\@textsuperscript{\@thefnmark}}}
-  \ifcase\cpt@type
-   \or \myatxy(1.65cm,1.425cm){\includegraphics{CadreVert.jpg}}
-   \or \myatxy(1.65cm,1.425cm){\includegraphics{CadreVert.jpg}}
-   \else\@warning{*** Problème avec le type de rapport.
-       Prévenez la maintenance ***}
-   \fi
-%   \myatxy(22mm,2cm)
-%       {
-   \begin{center}
-     \includegraphics[width=0.21\columnwidth]{logo.jpg}%}
-   \end{center}
-   {%
-   \parskip=0pt
-   \@tempdima=2cm
-   \advance \@tempdima -1in
-   \advance\@tempdima -\topmargin
-   \advance\@tempdima -\headheight
-   \advance\@tempdima -\headsep
-   \advance\@tempdima -\topskip
-   \null \vskip\@tempdima
-   \vskip3.8cm
-%   \setbox0\hbox to 13.1cm{%
-%     \noindent\hfill
-%     {\tentm \Large{RAPPORT DE RECHERCHE}}%
- %     \hfill}
-   \@tempdima=1in\advance\@tempdima\evensidemargin
-   \advance\@tempdima-3.5cm
-   \noindent\kern-\@tempdima\hbox to0pt{\box0\hss}
-   }%
-   \vskip0.5cm
-   \setbox0\vbox to 10cm{%
-   \hsize=16cm
-   \begin{center}
-     \def\footnote##1{\relax}%
-     \let\thanks\@nothanks
-     \def\footnotemark{%
-         \@ifnextchar[\my@xfootnotemark\relax}
-     \def\my@xfootnotemark[##1]{\relax}%
-      \baselineskip30pt
-      \twentytb \if@MATISfrench {\@MATIStitle}\else {\@MATISetitle}\fi
-      \\[3cm]
-      {\twelvetr \@MATISauthor \\\@MATISaffiliationune}%
-      %{\twelvetr \@MATISauthor \\(IGN/DT/SR/MATIS)}%
-%      \vfill
-%      \\[2.3cm]
-       \\[1cm]
-      \begin{center}
-%	\textcolor{blue}{\twentytbb {R}\fifteentb{APPORT DE}  \twentytbb {R}\fifteentb{ECHERCHE}}
-%     \includegraphics[width=0.5\columnwidth]{RR.eps}%}
-      \end{center}
-      \vskip1.5cm
-%      \vskip1.5cm
-%      {\fifteentb N\textdegree\ \@MATISNo}
-      \vskip4.8cm%il faut jouer sur cette valeur pour positionner la date au bon niveau...
-      {\twelvetr --- \@MATISdate \: ---}
-   \end{center}}%
-   \@tempdima=1in\advance\@tempdima\evensidemargin
-   \advance\@tempdima-2.5cm
-   \noindent\kern-\@tempdima\hbox to0pt{\box0\hss}
-%   \myatxy(70mm,255mm) {\hbox to 72mm{%
-%      \hrulefill\tenhv ~\@MATISTHMTYPE~\@MATISthmnum~ \hrulefill}}
-      \vfill
-      \c@page\z@
-      \newpage
-      \thispagestyle{empty}
-      \c@page\z@
-      \null
-      \vfill
-%-%      \newpage
-%PARTIE PAGE LISTE DE DIFFUSION ET SIGNATURE
-%      \thispagestyle{empty}
-%      \vskip3cm
-%      \begin{center}
-%        {\LARGE\bf \@MATIStitle \par}
-%        \vskip 1.5em
-%                      {\large \@MATISdate{} --- \@MATISnbpage{} pages\par}
-% %       \vskip 1.5em
-% %                     {\large\textbf{Référence IGN : }\phantom{4}\@MATISrefIGN \par}
-%      \end{center}
-%      \vskip1.5cm
-%      {\large\bf Avant-propos : \par}
-%      \vskip 1em
-%      {\normal \hangafter=0\hangindent=0cm \normal \@MATISavantpropos \par}
-%%      {\large \hangafter=0\hangindent=1.5cm \@MATISavantpropos \par}
-%%      {\hangafter=0\hangindent=-1cm toto1 toto2 \par}
-%%      {\hangafter=0\hangindent=1cm toto1 toto2 \par}
-%%      {\large \hspace{1.5cm}  diff1 \par}
-%%      {\large \hspace{1.5cm}  diff2 \par}
-%      \vskip 1.5cm
-%      {\large\bf Historique des modifications : \par}
-%      \vskip 1em
-%       {\normal \hangafter=0\hangindent=0cm \@MATIShistorique \par}
-%     \vskip 1.5cm
-%      {\large\bf R\'edig\'e par : \par}
-%      \vskip 1em
-%      {\large \hangafter=0\hangindent=1.5cm \@MATISauthor \phantom{4} ( \phantom{}\if@MATISfrench \@MATISaffiliation\else\@MATISaffiliatione\fi \phantom{} %) \phantom{10} --- \phantom{10}\tt{\@MATISauthormail}\par}
-%      {\large \@MATISsignature \par}
-%%      {\large \hspace{1.5cm} \@MATISauthor \phantom{4} ( \phantom{}\if@MATISfrench \@MATISaffiliation\else\@MATISaffiliatione\fi \phantom{} ) \par}
-%
-%      \c@page\z@
-%      \null
-%      \vfill
-%       \newpage
-%      \thispagestyle{empty}
-%      \c@page\z@
-%      \null
-%      \vfill
-%       \newpage
-%PARTIE ABSTRACT FRANCAIS
-     \thispagestyle{empty}
-%   {\Large\bf \begin{center}
-%       \if@MATISfrench \@MATISetitle\else \@MATIStitle \fi
-%        \end{center}}
-    \pagebreak[0]
-%    \vfil
-%    \if@MATISfrench \@abstract\par\vskip5mm \@keyword \french\else
-%        \@resume \par\vskip5mm \@motcle \english\fi
- %   \vfil
-%    \null
-    \null  \vskip 30pt
- \thispagestyle{titrr}
-%   \@out@UR
-   \vskip1cm
-   \begin{center}
-      {\Large\bf \if@MATISfrench \@MATIStitle\else\@MATISetitle\fi \par}
-      \vskip 2em
-      {\large \lineskip .75em \@MATISauthore \par}
-      \vskip 0.5em
-      {\normalsize \lineskip .75em \tt{\@MATISauthormail} \par}
-      \vskip 1em
-      {\normalsize \if@MATISfrench \@MATISaffiliation\else\@MATISaffiliatione\fi \par}
-      {\normalsize
-         \if@MATISfrench \@MATISdate{}\else \@MATISdatee{}\fi --- \@MATISnbpage{} pages\par}
-   \end{center}
-   \@MATISnote
-   \@thanks
-   \vfil
-   \if@MATISfrench
-      \@resume\par\vskip5mm \@motcle \else
-      \@abstract \par\vskip5mm \@keyword \fi
-   \vfil
-\newpage
-%PARTIE ABSTRACT ANGLAIS
- %-%    \thispagestyle{empty}
-%   {\Large\bf \begin{center}
-%       \if@MATISfrench \@MATISetitle\else \@MATIStitle \fi
-%        \end{center}}
- %-%   \pagebreak[0]
-%    \vfil
-%    \if@MATISfrench \@abstract\par\vskip5mm \@keyword \french\else
-%        \@resume \par\vskip5mm \@motcle \english\fi
- %   \vfil
-%    \null
-  %-%  \null  \vskip 30pt
- %-%\thispagestyle{titrr}
-%   \@out@UR
-%-%   \vskip1cm
-  %-% \begin{center}
-  %-%    {\Large\bf \if@MATISfrench \@MATISetitle\else\@MATIStitle\fi \par}
-  %-%    \vskip 2em
-  %-%    {\large \lineskip .75em \@MATISauthore \par}
-  %-%    \vskip 0.5em
-  %-%    {\normalsize \lineskip .75em \tt{\@MATISauthormail} \par}
-   %-%   \vskip 1em
-   %-%   {\normalsize \if@MATISfrench \@MATISaffiliatione\else\@MATISaffiliation\fi \par}
- %-%     {\normalsize
-  %-%       \if@MATISfrench \@MATISdatee{}\else \@MATISdate{}\fi --- \@MATISnbpage{} pages\par}
-%-%  v%-% \end{center}
- %-%  \@MATISnote
-%-%   \@thanks
-%-%   \vfil
-%-%%-%   \if@MATISfrench
-%-%      \@abstract \par\vskip5mm \@keyword \else
-%-%      \@resume\par\vskip5mm \@motcle \fi
-%-%   \vfil
-
-
-
-%    \thispagestyle{empty}
- %-%  \newpage
-   \if@restonecol\twocolumn\fi
-  \setcounter{footnote}{0}
-  \global\def\thanks##1{\relax}
-  \let\maketitle\relax
-}
-\newcommand\@inibe{%
-      \let\\\space
-      \let\thanks\@nothanks%
-      \def\footnotemark[##1]{\relax}}
-\newcommand\ps@pi{\let\@mkboth\@gobbletwo
-     \def\@oddhead{\vbox{\hbox to \textwidth {
-%         \normalsize\it{\@inibe\@titlehead}\hfil\rm\thepage}
-         \normalsize\it{\@inibe}\hfil\rm\thepage}
-          \hbox{\rule[-1ex]{\textwidth}{.03cm}}}}
-     \def\@oddfoot{{\footnotesize \phantom{}}\hfill}
-     \def\@evenhead{\vbox{\hbox to \textwidth{
-            \rm\thepage\normalsize\it\hfil{\@inibe\@authorhead}}
-            \hbox{\rule[-1ex]{\textwidth}{.03cm}}}}
-     \def\@evenfoot{\hfill{\footnotesize \phantom{}}}}
-\let\ps@plain\ps@pi
-\def\@myhyperlink[#1]#2#3#4{#4}
-\def\MATIS@testdef #1#2#3{%
-  \def\reserved@a{#3}%
-  \expandafter \ifx \csname #1@#2\endcsname \reserved@a
-  \else
-    \ifx #1b%
-      {\let\hyper@@link\@myhyperlink
-       \edef\XX@{#3}\edef\XX@@{\csname #1@#2\endcsname}%
-       \ifx\XX@\XX@@  \else \wlog{Reference #1-#2 changed}\@tempswatrue\fi}%
-    \else \wlog{Reference #1-#2 changed}\@tempswatrue\fi
- \fi}
-\newcommand\MATIStestdef{\global\let\@testdef\MATIS@testdef}
-\setcounter{topnumber}{5}
-\def\topfraction{1}
-\setcounter{bottomnumber}{4}
-\def\bottomfraction{1}
-\setcounter{totalnumber}{10}
-\def\textfraction{0}
-\def\floatpagefraction{.5}
-\clubpenalty=10000
-\widowpenalty=10000
-\hfuzz=1pt
-\vfuzz=5pt
-\headheight1.5cm
-\headsep1cm
-\pagestyle{pi}
-%%\@ifundefined{chapter}{\relax}
-%%   {\def\chapter{\cleardoublepage \thispagestyle{pi}
-%%   \global\@topnum\z@ \@afterindentfalse \secdef\@chapter\@schapter}}
-\textwidth17cm
-\textheight24.5cm
-\evensidemargin-0.56cm
-\oddsidemargin-0.56cm
-\topmargin-2.25cm
-\footskip1cm
-
-% Pour obtenir un cadre rectangulaire :
-% Entoure #2 (le texte) d'un filet. Le filet est ecarte de #1 du texte
-% La ligne de base n'est pas perdue 
-% Syntaxe : \boxit[5pt]{...}.
-
-\def\boxit[#1]#2%
-    {\setbox1=\hbox{\kern#1{#2}\kern#1}%
-      \dimen1=\ht1 \advance\dimen1 by #1
-      \dimen2=\dp1 \advance\dimen2 by #1
-      \setbox1=\hbox{\vrule height\dimen1 depth\dimen2\box1\vrule}%
-      \setbox1=\vbox{\hrule\box1\hrule}%
-      \advance\dimen1 by .4pt \ht1=\dimen1
-      \advance\dimen2 by .4pt \dp1=\dimen2  \box1\relax
-    }
-
-
-\endinput
-
-%%% Fin de la feuille de style
+	\let\par\@@par%
+	\ifnum\outputpenalty <-\@M\@specialoutput\else%
+		\@makecol\@opcol\@floatplacement\@startcolumn%
+		\@whilesw\if@fcolmade \fi{\@opcol\@startcolumn}\fi%
+		\global\vsize\ifnum\outputpenalty >-\@Miv \@colroom%
+	\else \maxdimen\fi}%
+		\newcommand\MATISNo[1]{%
+			\gdef\@MATISNo{#1}%
+			\count1=0#10
+			\count0=0#1
+			\divide\count1 by 10
+			\advance\count1 by -\count0
+			\ifnum \count0=0
+				\gdef\@MATISNo{????}\@latex@error{Ne pas mettre de numéro bidon: #1}\@eha\fi
+				\ifnum \count1=0 \else
+					\gdef\@MATISNo{????}\@latex@error{Ne pas mettre de numéro bidon: #1}\@eha\fi
+					}
+					\newcommand\@MATISNo{????}
+					\newcommand\MATISdate[1]{\gdef\@MATISdate{#1}}\newcommand\@MATISdate{%
+						\xdef\@MATISdate{
+							\ifcase\the\month
+							\or Janvier\or Février\or Mars\or Avril\or Mai\or Juin%
+							\or Juillet\or Août\or Septembre\or Octobre\or Novembre\or Décembre\fi\space
+								\number\the\year}%
+								\@MATISdate%
+								\@warning{*** Pas de \string\MATISdate \space :
+									\@MATISdate\space par défaut. ***}}
+								\newcommand\MATISdatee[1]{\gdef\@MATISdatee{#1}}\newcommand\@MATISdatee{%
+									\xdef\@MATISdatee{
+										\ifcase\the\month
+										\or January\or February\or March\or April\or May \or June%
+										\or July\or August\or September\or October\or Novembre\or December\fi\space
+											\number\the\year}%
+											\@MATISdatee%
+											\@warning{*** Pas de \string\MATISdatee \space :
+												\@MATISdatee\space par défaut. ***}}
+											\newcommand\MATISauthor[1]{\gdef\@MATISauthor{#1}\gdef\@authorhead{#1}}
+											\newcommand\MATISauthore[1]{\gdef\@MATISauthore{#1}}
+											\newcommand\MATISauthormail[1]{\gdef\@MATISauthormail{#1}}
+											\newcommand\@MATISauthor{??\@warning{***Il manque le nom d'auteur,
+												utilisez \string\MATISauthor{Prenom1 NOM1\string\and \space Prenom2 NOM
+													\string\and \space... ***}}}
+											\newcommand\@MATISauthore{??\@warning{***Il manque le nom d'auteur,
+												utilisez \string\MATISauthore{Prenom1 NOM1\string\and \space Prenom2 NOM
+													\string\and \space... ***}}}
+											\newcommand\MATISrefIGN[1]{\gdef\@MATISrefIGN{#1}}%Reference IGN du rapport
+											%\newcommand\MATISdiffusion[1]{\gdef\@MATISdiffusion{#1}}%A reactiver pour avoir une liste de diffusion
+											\newcommand\MATISavantpropos[1]{\gdef\@MATISavantpropos{#1}}%Avant propos sur le document
+											\newcommand\MATIShistorique[1]{\gdef\@MATIShistorique{#1}}%historique des modifications
+											\newcommand\MATISsignature[1]{\gdef\@MATISsignature{#1}}%signature, en cas de besoin
+											\newcommand\MATIStitle[1]{\gdef\@MATIStitle{#1}}
+											\newcommand\MATISetitle[1]{\gdef\@MATISetitle{#1}}
+											\def\set@titlehead{{\def\tempa{french}\def\tempb{frenchb}%
+												\ifx\bbl@main@language\tempa\global\@MATISfrenchtrue\fi
+												\ifx\bbl@main@language\tempb\global\@MATISfrenchtrue\fi
+												\@ifundefined{ifFrench}{}{\global\@MATISfrenchtrue}%
+												\def\tempa{}%
+												\ifx\@titlehead\tempa \if@MATISfrench \gdef\@titlehead{\@MATIStitle} \else
+													\gdef\@titlehead{\@MATISetitle}\fi\fi}}
+													\AtBeginDocument{\set@titlehead}
+													\newcommand\@MATIStitle{??\@warning{*** Pas de titre français,
+														utilisez \string\MATIStitle. ***}}
+													\newcommand\@MATISetitle{??\@warning{*** Pas de titre anglais,
+														utilisez \string\MATISetitle. ***}}
+													\newcommand\MATISnote[1]{\begingroup
+														\let\protect\@unexpandable@protect
+														\xdef\@MATISnote{\@MATISnote \protect\footnotetext[0]{#1\par}}%
+														\endgroup}
+													\newcommand\@MATISnote{}
+													
+													%Ancienne version affectation
+													%\newcommand\@MATISaffiliation{IGN - LaSTIG - MATIS}
+													%\newcommand\@MATISaffiliatione{IGN - LaSTIG - MATIS} % Pour l'anglais
+													%\newcommand\@MATISaffiliationune{IGN - LaSTIG - MATIS} % Pour la page de garde
+													
+													%Nouvelle version affectation (permet de gerer un comportement par defaut tout en permettant de modifier l'affectation selon les cas
+													\newcommand\MATISaffiliation[1]{\gdef\@MATISaffiliation{#1}}
+													\newcommand\MATISaffiliatione[1]{\gdef\@MATISaffiliatione{#1}}
+													\newcommand\MATISaffiliationune[1]{\gdef\@MATISaffiliationune{#1}}
+													\newcommand\@MATISaffiliation{IGN - LaSTIG - MATIS}
+													\newcommand\@MATISaffiliatione{IGN - LaSTIG - MATIS}
+													\newcommand\@MATISaffiliationune{}
+													%\newcommand\@MATISaffiliationune{(IGN/DT/SR/MATIS)}
+													
+													
+													\newcommand\MATISnbpage[1]{\gdef\@MATISnbpage{#1}}
+													\newcommand\@MATISnbpage{\@ifundefined{r@MATISlastpageofreport}{??}
+														{\pageref{MATISlastpageofreport}}}
+													\newcommand\UR{
+														\gdef\@MATISURaddress{LaSTIG - de Recherche MATIS\\
+															Institut Géographique National,\\
+															73 Avenue de Paris\\
+															94165 Saint-Mandé Cedex (France)\\
+														}
+														\gdef\@title@logo@name{logo.jpg}}
+													\newcommand\@comspace{ : }
+													\newif\if@mustprint
+													\newcommand\lastMATISpage{%
+														\clearpage\thispagestyle{empty}%
+														\label{MATISlastpageofreport}
+														\addtocounter{page}{-1}
+														\null\vfill
+														\myatxy(1.5cm,183mm){\vbox{\hsize=18cm
+															\vskip1cm
+															\vbox to 4cm{%
+																\hrule\vfill
+																\begin{center}
+																	\includegraphics[width=0.1\columnwidth]{logo.jpg}\\
+																	{\bf LaSTIG MATIS} \\{\bf La}boratoire des {\bf S}ciences et {\bf T}echnologies de l'{\bf I}nformation {\bf G}éographique\\
+																	Institut National de l'Information Géographique et Forestière,\\
+																	73 Avenue de Paris, 94165 Saint-Mandé Cedex (France)\\
+																	\tt{http://recherche.ign.fr/labos/matis}
+																\end{center}
+																\vfill\hrule}
+															\vskip5mm
+														}}
+														\clearpage
+													}
+													\AtEndDocument{\lastMATISpage}
+													\newcommand\MATISresume[1]{%
+														\long\def\@resume{\noindent{\bf R\'esum\'e : }\french #1\par}}
+													\newcommand\MATISabstract[1]{%
+														\long\def\@abstract{\noindent{\bf Abstract: }\english #1\par\french}}
+													\MATISresume{Pas de résumé}
+													\MATISabstract{No abstract}
+													\newcommand\motcle[1]{%
+														\def\@motcle{\noindent{\bf Mots-cl\'es : } \french #1\par}}
+													\newcommand\keyword[1]{%
+														\def\@keyword{\noindent{\bf Key-words: } \english #1\par\french}}
+													\motcle{Pas de motclef}
+													\keyword{No keywords}
+													
+													\let\resume=\MATISresume \let\abstract=\MATISabstract
+													\let\MATISmotcle=\motcle \let\MATISkeyword=\keyword
+													\def\@nothanks{\@ifnextchar[{\@xnothanks}{\@gobble}}
+														\def\@xnothanks[#1]#2{\relax}
+														\def\@xthanks[#1]#2{\orig@thanks{#2}%
+															\expandafter\edef\csname @footnote@#1\endcsname{\the\c@footnote}}
+														\def\thanksref#1{\footnotemark[\csname @footnote@#1\endcsname]}
+														
+														\newcommand\ps@titrr{%
+															\def\@oddhead{\hbox to \textwidth{%
+																%      \vskip1cm
+																\hfill
+																\vbox to \headheight{%
+																	\hbox{
+																		\includegraphics[width=0.2\columnwidth]{logo.jpg}}\vss}%
+																\hfill
+															}}
+															\def\@oddfoot{\relax}
+															\let\@evenfoot\@oddfoot
+															\let\@evenhead\@oddhead
+														}
+														\newcommand\@out@UR{%
+															\setbox0\hbox to\textwidth{\vbox{%\hrule%
+																\begin{center}\tentm\@MATISURaddress\end{center}%
+															}}%
+															\dimen0=29cm
+															\advance\dimen0 -\ht0
+															\dimen1=1in
+															\advance\dimen1\oddsidemargin
+															\myatxy(\dimen1,\dimen0){\box0}%
+															\dimen1=1in
+															\advance\dimen1\topmargin
+															\advance\dimen1\headheight
+															\advance\dimen1\headsep
+															\advance\dimen1\textheight
+															\advance\dimen1\footskip
+															\ifdim \dimen1>\dimen0
+																\advance\dimen1 -\dimen0 \enlargethispage{-\dimen1}\fi}
+																\newcommand\makeMATIS{\cpt@type=1{\@makeMATIS}}
+																\newcount\cpt@type
+																\cpt@type=1
+																\newcommand\@makeMATIS{%
+																	\global\let\makeMATIS\relax\global\let\makeRT\relax
+																	\let\orig@thanks\thanks
+																	\def\thanks{\@ifnextchar[ {\@xthanks}{\orig@thanks}}%
+																		\@ifundefined{english}{
+										    \def\french{\language=1}
+										    \def\english{\language=0}
+										  }{}
+										 \def\and{ --- }
+																		\@restonecolfalse
+																		\if@twocolumn\@restonecoltrue\onecolumn\fi
+																		\thispagestyle{empty}
+																		\def\@makefnmark{\rlap{\@textsuperscript{\@thefnmark}}}
+																		
+																		{%
+																			\parskip=0pt
+																			\@tempdima=2cm
+																			\advance \@tempdima -1in
+																			\advance\@tempdima -\topmargin
+																			\advance\@tempdima -\headheight
+																			\advance\@tempdima -\headsep
+																			\advance\@tempdima -\topskip
+																			\null \vskip\@tempdima
+																			\vskip3.8cm
+																			\@tempdima=1in\advance\@tempdima\evensidemargin
+																			\advance\@tempdima-3.5cm
+																			\noindent\kern-\@tempdima\hbox to0pt{\box0\hss}
+																		}%
+																		\vskip0.5cm
+																		
+																					\@tempdima=1in\advance\@tempdima\evensidemargin
+																					\advance\@tempdima-2.5cm
+																					\noindent\kern-\@tempdima\hbox to0pt{\box0\hss}
+																					\vfill
+																					\c@page\z@
+																					\thispagestyle{empty}
+																					\c@page\z@
+																					\null
+																					\vfill
+																					%PARTIE PAGE LISTE DE DIFFUSION ET SIGNATURE
+																					%PARTIE ABSTRACT FRANCAIS
+																					\thispagestyle{empty}
+																					\pagebreak[0]
+																					\null  \vskip 30pt
+																					\thispagestyle{titrr}
+																					%   \@out@UR
+																					\vskip1cm
+																					\begin{center}
+																						{\Large\bf \if@MATISfrench \@MATIStitle\else\@MATISetitle\fi \par}
+																						\vskip 2em
+																						{\large \lineskip .75em \@MATISauthore \par}
+																						\vskip 0.5em
+																						{\normalsize \lineskip .75em \tt{\@MATISauthormail} \par}
+																						\vskip 1em
+																						{\normalsize \if@MATISfrench \@MATISaffiliation\else\@MATISaffiliatione\fi \par}
+																						{\normalsize
+																							\if@MATISfrench \@MATISdate{}\else \@MATISdatee{}\fi --- \@MATISnbpage{} pages\par}
+																					\end{center}
+																					\@MATISnote
+																					\@thanks
+																					\vfil
+																					\if@MATISfrench
+																					\@resume\par\vskip5mm \@motcle \else
+																					\@abstract \par\vskip5mm \@keyword \fi
+																					\vfil
+																					\newpage
+																					\if@restonecol\twocolumn\fi
+																					\setcounter{footnote}{0}
+																					\global\def\thanks##1{\relax}
+																					\let\maketitle\relax
+																					}
+																					\newcommand\@inibe{
+																						\let\\\space
+																						\let\thanks\@nothanks%
+																						\def\footnotemark[##1]{\relax}}
+																					\newcommand\ps@pi{\let\@mkboth\@gobbletwo
+																						\def\@oddhead{\vbox{\hbox to \textwidth {
+																							\normalsize\it{\@inibe}\hfil\rm\thepage}
+																							\hbox{\rule[-1ex]{\textwidth}{.03cm}}}}
+																						\def\@oddfoot{{\footnotesize \phantom{}}\hfill}
+																						\def\@evenhead{\vbox{\hbox to \textwidth{
+																							\rm\thepage\normalsize\it\hfil{\@inibe\@authorhead}}
+																							\hbox{\rule[-1ex]{\textwidth}{.03cm}}}}
+																						\def\@evenfoot{\hfill{\footnotesize \phantom{}}}}
+																					\let\ps@plain\ps@pi
+																					\def\@myhyperlink[#1]#2#3#4{#4}
+																					\def\MATIS@testdef #1#2#3{%
+																						\def\reserved@a{#3}%
+																						\expandafter \ifx \csname #1@#2\endcsname \reserved@a
+																						\else
+																						\ifx #1b%
+																							{\let\hyper@@link\@myhyperlink
+																								\edef\XX@{#3}\edef\XX@@{\csname #1@#2\endcsname}%
+																								\ifx\XX@\XX@@  \else \wlog{Reference #1-#2 changed}\@tempswatrue\fi}%
+																						\else \wlog{Reference #1-#2 changed}\@tempswatrue\fi
+																						\fi}
+																					\newcommand\MATIStestdef{\global\let\@testdef\MATIS@testdef}
+																					\setcounter{topnumber}{5}
+																					\def\topfraction{1}
+																					\setcounter{bottomnumber}{4}
+																					\def\bottomfraction{1}
+																					\setcounter{totalnumber}{10}
+																					\def\textfraction{0}
+																					\def\floatpagefraction{.5}
+																					\clubpenalty=10000
+																					\widowpenalty=10000
+																					\hfuzz=1pt
+																					\vfuzz=5pt
+																					\headheight1.5cm
+																					\headsep1cm
+																					\pagestyle{pi}
+																					%%\@ifundefined{chapter}{\relax}
+																					%%   {\def\chapter{\cleardoublepage \thispagestyle{pi}
+																					%%   \global\@topnum\z@ \@afterindentfalse \secdef\@chapter\@schapter}}
+																					\textwidth17cm
+																					\textheight24.5cm
+																					\evensidemargin-0.56cm
+																					\oddsidemargin-0.56cm
+																					\topmargin-2.25cm
+																					\footskip1cm
+																					
+																					% Pour obtenir un cadre rectangulaire :
+																					% Entoure #2 (le texte) d'un filet. Le filet est ecarte de #1 du texte
+																					% La ligne de base n'est pas perdue 
+																					% Syntaxe : \boxit[5pt]{...}.
+																					
+																					\def\boxit[#1]#2%
+																					{\setbox1=\hbox{\kern#1{#2}\kern#1}%
+																						\dimen1=\ht1 \advance\dimen1 by #1
+																						\dimen2=\dp1 \advance\dimen2 by #1
+																						\setbox1=\hbox{\vrule height\dimen1 depth\dimen2\box1\vrule}%
+																						\setbox1=\vbox{\hrule\box1\hrule}%
+																						\advance\dimen1 by .4pt \ht1=\dimen1
+																						\advance\dimen2 by .4pt \dp1=\dimen2  \box1\relax
+																					}
+																					
+																					
+																					\endinput
+																					
+																					%%% Fin de la feuille de style
