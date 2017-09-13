@@ -60,7 +60,7 @@ citecolor=blue
 \usepackage{enumitem}
 \usepackage[pdftex]{graphicx}
 \usepackage{subcaption}
-\graphicspath{{Figures/}{Figures/finistere_T41000_30000/}{Figures/finistere_T35000_40000/}}
+\graphicspath{{Figures/}{Figures/finistere_T41000_30000/}{Figures/finistere_T35000_40000/}{Figures/gironde_T10500_34500/}{Figures/finistere_all/}}
 
 %Bibliography
 \usepackage[
@@ -235,26 +235,27 @@ Region & Sentinel-2 dates & SPOT-6 dates \\\hline
 \end{table}
 % TODO pq on a pris des dates très similaires pour la Finistère ? date 2016 ?
 
-All classifiers presented below have been applied to a zone spanning in the Finistère region in North-Western France and Gironde in Western France near Bordeaux. Fusion and regularization products are produced for the entire zone covered in both available datasets for Finistère, spanning 648 $km^2$. Results are presented visually for a sub-zone of 0.64 $km^2$ area (fig.  \ref{fig:area}).
+All classifiers presented below have been applied to a zone spanning in the Finistère region in North-Western France and Gironde in Western France near Bordeaux. Fusion and regularization products are produced for the entire zone covered in both available datasets for Finistère, spanning 648 $km^2$. Results are presented visually for a sub-zone of 0.64 $km^2$ area (fig.  \ref{fig:area\tile}).
+\newcommand{\figureTile}{
 \begin{figure}[H]
     \centering
     \begin{subfigure}{0.49\textwidth}
         \centering
         \includegraphics[width=.9\textwidth]{\region_T\tile_Im_SPOT6}
         \caption{SPOT 6 image tile (3000$\times$ 3000 m)}
-        \label{fig:areaBig}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.49\textwidth}
         \centering
         \includegraphics[width=.9\textwidth]{\region_T\tile_Im_SPOT6_crop}
         \caption{Zoomed area (800 $\times$ 800 m)}
-        \label{fig:areaSmall}
     \end{subfigure}
     \caption{SPOT6 image tile and crop window used for visualization in the report}
-    \label{fig:area}
+    \label{fig:area\tile}
     \centering
 \end{figure}
+}
+\figureTile
 
 \section{Methodology}\label{sec:method}
 \subsection{Workflow}
@@ -270,26 +271,28 @@ Figure \ref{fig:methods} shows the overall workflow for producing a classificati
 
 The data sets were first classified individually before fusion: The Sentinel-2 image was classified using 10 bands of each date (tables \ref{table:bands_s2}, \ref{table:dates}) using a Random Forest classifier with 50'000 samples per class and 100 trees \parencite{Breiman2001}. The SPOT-6 image was classified using a Deep Convolutional Neural Network (DCNN) on the four bands of the SPOT-6 image descripbed in tables \ref{table:bands_spot}, \ref{table:dates} (\cite{postadjian_investigating_2017}). Both classifiers produced membership probabilities for the 5 classes described in the introduction (building, roads, water, forest and other vegetation).\\
 
-The Random Forest classifier was trained using ground truth data of the freely available BDTOPO and RPG databases, from which a ground truth map of 5 class labels was derived (\cite{bdtopo,RPG}, fig. \ref{fig:vt}).
-
+The Random Forest classifier was trained using ground truth data of the freely available BDTOPO and RPG databases, from which a ground truth map of 5 class labels was derived (\cite{bdtopo,RPG}, fig. \ref{fig:vt\tile}).
+\newcommand{\figureGT}{
 \begin{figure}[H]
     \centering
     \begin{subfigure}{0.49\textwidth}
         \centering
         \includegraphics[width=\textwidth]{\region_T\tile_Im_SPOT6_crop}
         \caption{Original image (SPOT 6)}
-        \label{fig:SPOT6}
+        \label{fig:SPOT6\tile}
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
         \centering
         \includegraphics[width=\textwidth]{\region_T\tile_train}
         \caption{Ground Truth}
-        \label{fig:GT}
+        \label{fig:GT\tile}
     \end{subfigure}
     \legende
     \caption{Original image and ground truth. Black parts indicate missing ground truth data.}
-    \label{fig:vt}
+    \label{fig:vt\tile}
 \end{figure}
+}
+\figureGT
 
 \subsection{Fusion schemes}\label{sec:fusion}
 % Notation to be used:
@@ -506,7 +509,7 @@ In addition, the image used for the contrast term was blurred by a Gaussian filt
 
 \subsection{Evaluation}
 
-Evaluation of the 5-class classifications was performed on the fusion and regularization results on all five classes, applied to 5 tiles of 3000 $\times$ 3000m size, totalling an area of 45 $km^2$. The class labels of each classification were compared against the class labels of the ground truth of the freely available BDTOPO and RPG (databases, from which a ground truth map of 5 class labels was derived (\cite{bdtopo,RPG}, fig. \ref{fig:vt}). In particular, for the classification by fusion, the sixth buffer class around buildings was ignored for evaluation.\\
+Evaluation of the 5-class classifications was performed on the fusion and regularization results on all five classes, applied to 5 tiles of 3000 $\times$ 3000m size, totalling an area of 45 $km^2$. The class labels of each classification were compared against the class labels of the ground truth of the freely available BDTOPO and RPG (databases, from which a ground truth map of 5 class labels was derived (\cite{bdtopo,RPG}, fig. \ref{fig:vt\tile}). In particular, for the classification by fusion, the sixth buffer class around buildings was ignored for evaluation.\\
 
 Following indicators were produced for each classification (\cite{deMorsier}):
 \begin{itemize}
@@ -688,35 +691,36 @@ IoU_{i}=\frac{n_{ii}}{n_{i.}+n_{.i}-n_{ii}}=\frac{\text{TP}}{\text{Pp}+\text{P}-
 
 \section{Results}
 \subsection{Original Classifications}
-The original classification confirms well the initial observation that the SPOT6 classifier tends to preserve geometries, whereas the S2 classifier overall behaves better, while mixing buildings and roads due to its coarse spatial resolution. Figure \ref{fig:cl_orig} shows the original classification result from the individual classifications on the SPOT 6 and Sentinel-2 images. The presented zone was selected in particular to illustrate problems of both classifiers and improvements yielded by fusion and regulation, however the initial classifiers show better results in other zones.\\ % TODO add appendix\\
+The original classification confirms well the initial observation that the SPOT6 classifier tends to preserve geometries, whereas the S2 classifier overall behaves better, while mixing buildings and roads due to its coarse spatial resolution. Figure \ref{fig:cl_orig\tile} shows the original classification result from the individual classifications on the SPOT 6 and Sentinel-2 images. The presented zone was selected in particular to illustrate problems of both classifiers and improvements yielded by fusion and regulation, however the initial classifiers show better results in other zones.\\ % TODO add appendix\\
 
-A few particularly interesting confusions can be highlighted on the example of figure \ref{fig:cl_orig}:
+A few particularly interesting confusions can be highlighted on the example of figure \ref{fig:cl_orig\tile}:
 \begin{enumerate}
     \item The SPOT6 classifier discovers a big patch of buildings and road in the top-left corner where there is actually a field (probabilities are shown in fig. \ref{fig:proba_point}). This is probably due to the fact that the field was barren at the time the image was taken and leads to a wrong classification due to the low number of bands. The patch is correctly labelled in the Sentinel-2 classification thanks to the use of a time series.
     \item In the middle of the image, there is an industrial complex visibly surrounded by roads and concrete ground. Several patches around the building are wrongly classified as water by the SPOT 6 classification while there is also a minor however smaller amount of confusion in Sentinel-2. The confusion is due to the training set of both classifiers which contains muddy waters in other zones than the one represented below having a brighter texture more similar to the pavement surrounding the industrial area.
     \item Individual buildings in the left-hand corner are nicely recognizable in the SPOT 6 classification, and they are mixed with the roads in the Sentinel-2 classification due to its lower resolution.
 \end{enumerate}
 Overall, the Sentinel-2 RF classifier tends to recognize well bigger patches of culture and forest while showing some confusion between roads and buildings. The SPOT-6 DCNN classifier shows good discrimination between building and roads as well as finer geometric level of detail, however it shows more confuses between classes. Buildings, which are of main interest here, are generally little confused in the Finistère region.
+\newcommand{\figureOrigClass}{
 \begin{figure}[H]
     \centering
     \begin{subfigure}{0.49\textwidth}
         \centering
         \includegraphics[width=.9\textwidth]{\region_T\tile_classif_SPOT6_all}
         \caption{SPOT 6 classification}
-        \label{fig:SPOT6cl}
+        \label{fig:SPOT6cl\tile}
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
         \centering
         \includegraphics[width=.9\textwidth]{\region_T\tile_classif_S2_all}
         \caption{Sentinel 2 classification}
-        \label{fig:S2cl}
+        \label{fig:S2cl\tile}
     \end{subfigure}
     \legende
     \caption{Original image, ground truth and classifications. The SPOT6 image is superposed transparently in the background of the classifications. }
-    \label{fig:cl_orig}
+    \label{fig:cl_orig\tile}
 \end{figure}
-
-
+}
+\figureOrigClass
 
 \subsection{Fusion}
 All results of the fusion are shown in appendix \ref{app:subsec:fusion}. The Min and Bayes classifiers produced the best results since they followed the objects most precisely while producing the least class confusions (fig. \ref{fig:fusion}).
@@ -745,7 +749,7 @@ Although these classifiers are among the mathematically most simple, they produc
 
 With respect to the comments on the individual classifications before fusion:
 \begin{enumerate}
-    \item Both fusion rules manage to get rid of the wrongly classified building patch in the top-left corner (cf. fig. \ref{fig:SPOT6cl}), preferring the Sentinel-2 classification pixels over the one of SPOT6. However, the Bayesian classifier follows the field contours more smoothly than the Min classifier. % TODO show pixel values
+    \item Both fusion rules manage to get rid of the wrongly classified building patch in the top-left corner (cf. fig. \ref{fig:SPOT6cl\tile}), preferring the Sentinel-2 classification pixels over the one of SPOT6. However, the Bayesian classifier follows the field contours more smoothly than the Min classifier. % TODO show pixel values
     \item The industrial zone in the middle is still confused with water in both classifiers, however the southeastern part of it is now correctly classified as vegetation.
     \item Both fusion methods manage to conserve the level of detail within the urban patch in the bottom-right corner. However, a closer look reveals that the Min classifier preserves more detail in densely populated areas while the Bayes classifier has a slightly higher tendency to connect buildings within patches. 
 \end{enumerate}
@@ -759,25 +763,28 @@ The model and parameters chosen for the final regularization are as follows:
     \item Contrast model 1, since model 2 was not enough adaptable (behaved very similar under different parameter sets and did not show significant improvement over model 1)
     \item Optimal parameters: $\lambda = 10, \gamma = 0.7, \varepsilon = 50$. The parameters were selected by cross-validation, optimizing visual qualities of the regularization result.
 \end{itemize}
-The regularization product using the above-mentioned regularization model and parameters is shown in figure \ref{subfig:regularisation}.
+The regularization product using the above-mentioned regularization model and parameters is shown in figure \ref{subfig:regularisation\tile}.
+\newcommand{\figureFusionRegul}{
 \begin{figure}[H]
     \centering 
     \begin{subfigure}{0.49\textwidth}
         \centering
         \includegraphics[width=\textwidth]{\region_T\tile_classif_Fusion_Min_weighted}
         \caption{Fusion}
-        \label{subfig:fusion_min}
+        \label{subfig:fusion_min\tile}
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
         \centering
         \includegraphics[width=\textwidth]{\region_T\tile_regul_Min_weighted_G2_l1000_g70_e500_0_0_0}
         \caption{Regularization}
-        \label{subfig:regularisation}
+        \label{subfig:regularisation\tile}
     \end{subfigure}
     \legende
     \caption{Fusion and Regularization of the Min Classifier}
-    \label{fig:fusion_regularisation}
+    \label{fig:fusion_regularisation\tile}
 \end{figure}
+}
+\figureFusionRegul
 The regularization does its job smoothing out small noisy patches and yielding a visually more appealing result, although its classification accuracy is lower compared to those of the fusion (cf. table \ref{table:eval}).
 
 \section{Evaluation}
@@ -866,13 +873,14 @@ Results using majority vote of the dilated binary class probabilities within the
 A too high cut leads to an over-generalization and loss of useful information, while an too low cut can keep too many small zones from the initial over-segmentation. A cut of 8 is a good trade-off and will be further analyzed.
 
 \subsubsection{Comparison}
+\newcommand{\figureBinRegulSeg}{
 \begin{figure}[H]
     \centering
     \begin{subfigure}{0.49\textwidth}
         \centering
         \includegraphics[width=\textwidth]{\region_T\tile_BIN_regul_proba_Fusion_Min_100_1000_100_0_100_70_100_200_0_0_0}
         \caption{Fusion and Regularization}
-        \label{subfig:fusionRegComp}
+        \label{subfig:fusionRegComp\tile}
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
         \centering
@@ -881,11 +889,13 @@ A too high cut leads to an over-generalization and loss of useful information, w
     \end{subfigure}
     \legendebin
     \caption{Fusion and regularization followed by segmentation and majority voting. The segmentation step allows following contours in the original image more closely.}
-    \label{fig:comparison}
+    \label{fig:comparison\tile}
 \end{figure}
+}
+\figureBinRegulSeg
 The segmentation yields some refinements to the fusion and regulation:
 \begin{itemize}
-    \item It provides a more accurate classification in terms of following the original image contours. The effects of the non-directional dilatation of the building probability is well visible in figure \ref{subfig:fusionRegComp} where the industrial area in the north-western part of the image extends in all directions, which it doesn't in the segmentation result.
+    \item It provides a more accurate classification in terms of following the original image contours. The effects of the non-directional dilatation of the building probability is well visible in figure \ref{subfig:fusionRegComp\tile} where the industrial area in the north-western part of the image extends in all directions, which it doesn't in the segmentation result.
     \item The segmentation approach manages to remove some artifacts which were still present in the regularization, such as the classification of the road intersection as a building near the top-left corner.
 \end{itemize}
 However, a drawback of the Sentinel-2 classification is the arbitrary choice of the cut parameter which is done manually.
@@ -902,21 +912,12 @@ In addition to the small-scale visualizations shown, the same results were also 
 The figures below show the results of using the same processing chain as described in the methodology in a zone having less class confusions in the initial classifications.
 
 \renewcommand{\tile}{35000_40000}
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}{0.49\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{\region_T\tile_Im_SPOT6_crop}
-        \caption{Original image (SPOT 6)}
-    \end{subfigure}
-    \begin{subfigure}{0.49\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{\region_T\tile_train}
-        \caption{Ground Truth}
-    \end{subfigure}
-    \legende
-    \caption{Original image and ground truth. Black parts indicate missing ground truth data.}
-\end{figure}
+\figureTile
+\figureGT
+\figureOrigClass
+\figureFusionRegul
+\figureBinRegulSeg
+
 \renewcommand{\tile}{41000_30000}
 % TODO add figures
 \subsection{Gironde}
