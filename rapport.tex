@@ -60,7 +60,7 @@ citecolor=blue
 \usepackage{enumitem}
 \usepackage[pdftex]{graphicx}
 \usepackage{subcaption}
-\graphicspath{{Figures/}}
+\graphicspath{{Figures/}{Figures/finistere_T41000_30000/}{Figures/finistere_T35000_40000/}}
 
 %Bibliography
 \usepackage[
@@ -102,7 +102,8 @@ sorting=nyt
     \fcolorbox{black}{red}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad Artificialized area 
     \fcolorbox{black}{green}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad Non-artificialized area
     }
-
+\newcommand{\tile}{41000_30000}    
+\newcommand{\region}{finistere}
 
 \MATISdate{\today}
 \MATISdatee{\today}
@@ -239,14 +240,14 @@ All classifiers presented below have been applied to a zone spanning in the Fini
     \centering
     \begin{subfigure}{0.49\textwidth}
         \centering
-        \includegraphics[width=.9\textwidth]{Im_SPOT6}
+        \includegraphics[width=.9\textwidth]{\region_T\tile_Im_SPOT6}
         \caption{SPOT 6 image tile (3000$\times$ 3000 m)}
         \label{fig:areaBig}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.49\textwidth}
         \centering
-        \includegraphics[width=.9\textwidth]{Im_SPOT6_crop}
+        \includegraphics[width=.9\textwidth]{\region_T\tile_Im_SPOT6_crop}
         \caption{Zoomed area (800 $\times$ 800 m)}
         \label{fig:areaSmall}
     \end{subfigure}
@@ -275,13 +276,13 @@ The Random Forest classifier was trained using ground truth data of the freely a
     \centering
     \begin{subfigure}{0.49\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{Im_SPOT6_crop}
+        \includegraphics[width=\textwidth]{\region_T\tile_Im_SPOT6_crop}
         \caption{Original image (SPOT 6)}
         \label{fig:SPOT6}
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{T41000_30000_train}
+        \includegraphics[width=\textwidth]{\region_T\tile_train}
         \caption{Ground Truth}
         \label{fig:GT}
     \end{subfigure}
@@ -315,7 +316,7 @@ $n$ being the number of sources and $H_{\alpha QE}$ a fuzziness measure called $
 All fuzzy rules have been tested using the original class probabilities as input  as well as using the probabilities weighted by the pointwise measure of their fuzziness degree (section \ref{sec:fuzzyLogic}). The hypothesis was that weighting the probabilities by their fuzziness could help improve other fusion methods as well by reducing the importance of fuzzy sources. In fig. \ref{fig:proba_point}, an example is shown where the SPOT 6 classifier has a higher fuzziness degree than the Sentinel-2 classifier, hence the probability of the SPOT 6 classifier is reduced more strongly by the pointwise measure.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=.7\textwidth]{proba_point}
+    \includegraphics[width=.7\textwidth]{\region_T\tile_proba_point}
     \caption{Original and weighted class probabilities}
     \label{fig:proba_point}
 \end{figure}
@@ -380,7 +381,7 @@ where $S_{best}=\argmax_{\mathcal{S}\in\mathcal{C}}margin^{(s)}(x)$.
 
 
 \subsubsection{Dempster-Shafer (DS) evidence theory}\label{sec:DS}
-According to the DS formalism, an information from a source $s$ for a class $c$ can be given as a mass function $m_c\vert m_c\in [0,1]$ (\cite{shafer-evidence}). Dempster-Shafer's evidence theory rule assumes simple classes $c\in \mathcal{L}$ as well as composed classes, which were limited to at most two simple classes as indicated in \cite{ouerghemmi_two-step_2017}. Masses associated to each simple class were denoted as taking simply the pointwise class membership probability.
+According to the DS formalism, an information from a source $s$ for a class $c$ can be given as a mass function $m_c\vert m_c\in [0,1]$ (\cite{shafer-evidence}). Dempster-Shafer's evidence theory rule assumes simple classes $c\in \mathcal{L}$ as well as composed classes, which were limited to at most two simple classes as indicated in \cite{ouerghemmi_two-step_2017}. Masses associated to each simple class were denoted as taking simply the class membership probability.
 \begin{align}
     m_s^{(c)}(x)=P_s^{(x)}
 \end{align}
@@ -412,13 +413,13 @@ Each classifier was trained using the ground truth from the BDTOPO and RPG datab
     \centering
     \begin{subfigure}{0.49\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{T41000_30000_train}
+        \includegraphics[width=\textwidth]{\region_T\tile_train_5cl}
         \caption{Original Ground Truth}
         \label{fig:GT_5cl}
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{T41000_30000_train_6cl}
+        \includegraphics[width=\textwidth]{\region_T\tile_train}
         \caption{Ground Truth with filled-in gaps}
         \label{fig:GT_6cl}
     \end{subfigure}
@@ -431,27 +432,43 @@ Each classifier was trained using the ground truth from the BDTOPO and RPG datab
 \subsection{Regularization}\label{sec:regularization}
 In order to smooth the fusion result, which still contains noisy patches, and make it follow real-world contours more accurately, an energy minimization regularization function was applied based on previous work by \cite{hervieu_fusion_2016} and \cite{ouerghemmi_two-step_2017}. The regularization consists of two terms, one related to the data fidelity, and one to the spatial regularization respectively:
 
-\[E(P_{fusion},C_{fusion},C)=\sum_{x\in I_{MS}}E_{data}(C(x))+\lambda\sum _{\substack{x,y\in N\\x\neq y}}E_{reg}(C(x),C(y)) \]
+\begin{equation}
+    E(P_{fusion},C_{fusion},C)=\sum_{x\in I_{MS}}E_{data}(C(x))+\lambda\sum _{\substack{x,y\in N\\x\neq y}}E_{reg}(C(x),C(y))
+\end{equation}
 where:
-\begin{align}
-E_{data}\big(C(x)\big)&=f\Big(P_{fusion}C(x)\big)\Big)\\
-E_{reg}\big(C(x)=C(y)\big)&=g\Big(P_{fusion}\big(C(x)\big),C_{fusion}\Big)\\
-E_{reg}\big(C(x)\neq C(y)\big)&=h\Big(P_{fusion}\big(C(x)\big),C_{fusion}\Big)
-\end{align}
+\begin{equation*}
+    \begin{aligned}
+    E_{data}\big(C(x)\big)&=f\Big(P_{fusion}C(x)\big)\Big)\\
+    E_{reg}\big(C(x)=C(y)\big)&=g\Big(P_{fusion}\big(C(x)\big),C_{fusion}\Big)\\
+    E_{reg}\big(C(x)\neq C(y)\big)&=h\Big(P_{fusion}\big(C(x)\big),C_{fusion}\Big)
+    \end{aligned}
+\end{equation*}
+    
 The data term is a fit-to-data attachment term which models the probability distribution $P_{fusion}$. defined by a function $f(t)$. Following options were tested:
 \begin{align}
 \text{Option 1: } f(t)&=-\log(x)\\
 \text{Option 2: } f(t)&=1-x
 \end{align}
-The regularization term $E_{reg}$ was decomposed in two components, one being a Potts model (\cite{schindler_overview_2012}) to prefer smoother label changes and a term attached to the contrast in the original image.
-\begin{align}
-    E_{reg}(C(x)=C(y)&=0\\ 
-    E_{reg}(C(y)\neq C(y))&=(1-\gamma)+\gamma V(x,y,\varepsilon)
-\end{align}
+The regularization term $E_{reg}$ is based on a enhanced Potts model (\cite{schindler_overview_2012}) to prefer smoother label changes . A simple Potts model is defined as:
+\begin{equation}
+    \begin{aligned}
+        E_{reg}(C(x)=C(y)&=0\\ 
+        E_{reg}(C(y)\neq C(y))&=1
+    \end{aligned}    
+\end{equation}
+
+The regularization term is enhanced by a contrast information accounting for the fact that label changes should be less strongly penalized in high-contrast areas of the image:
+\begin{equation}
+    \begin{aligned}
+        E_{reg}(C(x)=C(y)&=0\\ 
+        E_{reg}(C(y)\neq C(y))&=(1-\gamma)+\gamma V(x,y,\varepsilon)
+    \end{aligned}
+\end{equation}
+
 With $\gamma = 0$ yielding a pure Potts model and $\gamma = 1$ putting all weight on the contrast term. The contrast component accounts for the fact that label changes need not be penalized at strong contrast changes. Two alternative models were compared:
 $V(x,y,\varepsilon)$ being the term for contrast
 \begin{enumerate}
-    \item Option 1, based on \cite{ouerghemmi_two-step_2017}: 
+    \item Option 1, based on \cite{hervieu_fusion_2016,Rother_2004}: 
     \begin{equation}
         V(x,y)=\frac{1}{dim}\sum_{i\in[0,dim]}V_i(x,y)^\varepsilon
     \end{equation}
@@ -548,12 +565,59 @@ Following indicators were produced for each classification (\cite{deMorsier}):
 \subsection{Binary classification}
 The class probabilities from the direct classification on the Sentinel-2 image and the class probabilities from the fusion and regularization were each individually converted to binary classifications to obtain a class for artificialized areas ($a$) and one for non-artificialized areas ($\neg a$). Two options were tested:
 \begin{align}
-    P(a)&=P(b),  &P(\neg a)&= 1 - P(a)\\
-    P(a)&=P(b)+P(r),  &P(\neg a)&= 1 - P(a)
+    P(a)&=P(b),  &P(\neg a)&= 1 - P(a)\label{eq:bin1}\\
+    P(a)&=P(b)+P(r),  &P(\neg a)&= 1 - P(a)\label{eq:bin2}
 \end{align}
 $P(b)$ and $P(r)$ are the class probabilities for buildings and roads respectively. $b, r\in \mathcal{C}$ are classes of the Sentinel-2 and regularization classifications respectively, each consisting of membership probabilities for five classes $\mathcal{C}, \sum_{c \in \mathcal{C}}P(c) = 1$. Option two was retained only.\\ % TODO move to results section
 
-The binary class probabilities were used to perform a second fusion of the regularization result with the Sentinel-2 classification in order to find the extent of the urban tissue, consisting of contiguous structures of buildings and roads on a coarser level. Firstly, the binary class probabilities were extracted. A linear decreasing function assigning a probability from 1 to 0 to be in an artificialized area was applied surrounding all buildings, reaching a probability of 0 to be in an artificialized area after a distance of 200 meters. %TODO show probability dilatation steps
+The binary class probabilities were used to perform a second fusion of the regularization result with the Sentinel-2 classification in order to find the extent of the urban tissue, consisting of contiguous structures of buildings and roads on a coarser level. Firstly, the binary class probabilities were extracted. A linearly decreasing function assigning a probability from 1 to 0 to be in an artificialized area was applied surrounding all buildings, reaching a probability of 0 to be in an artificialized area after a distance of 200 meters (fig. \ref{fig:regul_fusion_steps}).
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=.9\textwidth]{\region_T\tile_binary_1_bati}
+        \caption{Buildings from regulation}
+        {\vspace{3mm}
+            \small\centering
+            \fcolorbox{black}{red}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad Buildings
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=.9\textwidth]{\region_T\tile_binary_2_dist}
+        \caption{Distance around each building}
+        {\vspace{3mm}
+            \small\centering
+            \fcolorbox{black}{black}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad d=0 
+            \fcolorbox{black}{white}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad d=max
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=.9\textwidth]{\region_T\tile_binary_3_bati-dist}
+        \caption{Distance and buildings superposed}
+        {\vspace{3mm}
+            \small\centering
+            \fcolorbox{black}{black}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad d=0 
+            \fcolorbox{black}{white}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad d=max
+             \fcolorbox{black}{red}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad buildings
+        }
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=.9\textwidth]{\region_T\tile_binary_4_proba_regul_urbain}
+        \caption{Probability to be in artificialized area as linearly decreasing distance function around buildings}
+        {\vspace{3mm}
+            \small\centering
+            \fcolorbox{black}{black}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad P(a)=0 
+            \fcolorbox{black}{white}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad P(a)=1
+        }
+    \end{subfigure}
+    \caption{Urban probability extraction}
+    \label{fig:regul_fusion_steps}
+\end{figure}
+
 This probability map together with binary class probabilities from the Sentinel-2 classifier are used for fusion and regularization, using the Min rule and the same parameters for regularization as described above.\\
 
 \subsection{Segmentation}
@@ -605,10 +669,11 @@ Evaluation of the artificialized area was performed against binary classificatio
     }{
     \begin{subfigure}{0.49\textwidth}
         \centering
-        \includegraphics[width=.9\textwidth]{T41000_30000_gt_\n}
+        \includegraphics[width=.9\textwidth]{\region_T\tile_gt_\n}
         \caption{\captiontext}
     \end{subfigure}
     }
+    \legendebin
     \caption{Binary ground truth}
     \label{fig:gt-bin}
 \end{figure}
@@ -618,8 +683,6 @@ In addition to the more qualitative comparison of the binary classifications and
 IoU_{i}=\frac{n_{ii}}{n_{i.}+n_{.i}-n_{ii}}=\frac{\text{TP}}{\text{Pp}+\text{P}-\text{TP}}
 \end{equation}
 % TODO evaluation of binary classification
-
-
 
 \newpage
 
@@ -638,13 +701,13 @@ Overall, the Sentinel-2 RF classifier tends to recognize well bigger patches of 
     \centering
     \begin{subfigure}{0.49\textwidth}
         \centering
-        \includegraphics[width=.9\textwidth]{T41000_30000_classif_SPOT6_all}
+        \includegraphics[width=.9\textwidth]{\region_T\tile_classif_SPOT6_all}
         \caption{SPOT 6 classification}
         \label{fig:SPOT6cl}
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
         \centering
-        \includegraphics[width=.9\textwidth]{T41000_30000_classif_S2_all}
+        \includegraphics[width=.9\textwidth]{\region_T\tile_classif_S2_all}
         \caption{Sentinel 2 classification}
         \label{fig:S2cl}
     \end{subfigure}
@@ -662,13 +725,13 @@ All results of the fusion are shown in appendix \ref{app:subsec:fusion}. The Min
     \centering 
     \begin{subfigure}{0.49\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{T41000_30000_classif_Fusion_Min_weighted}
+        \includegraphics[width=\textwidth]{\region_T\tile_classif_Fusion_Min_weighted}
         \caption{Fusion: Min rule}
         \label{fig:fusion_min}
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{T41000_30000_classif_Fusion_Bayes_weighted}
+        \includegraphics[width=\textwidth]{\region_T\tile_classif_Fusion_Bayes}
         \caption{Fusion: Bayesian Product rule}
         \label{fig:fusion_bayes}
     \end{subfigure}
@@ -701,13 +764,13 @@ The regularization product using the above-mentioned regularization model and pa
     \centering 
     \begin{subfigure}{0.49\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{T41000_30000_classif_Fusion_Min_weighted}
+        \includegraphics[width=\textwidth]{\region_T\tile_classif_Fusion_Min_weighted}
         \caption{Fusion}
         \label{subfig:fusion_min}
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{T41000_30000_regul_Min_weighted_G2_l1000_g70_e500_0_0_0}
+        \includegraphics[width=\textwidth]{\region_T\tile_regul_Min_weighted_G2_l1000_g70_e500_0_0_0}
         \caption{Regularization}
         \label{subfig:regularisation}
     \end{subfigure}
@@ -716,121 +779,6 @@ The regularization product using the above-mentioned regularization model and pa
     \label{fig:fusion_regularisation}
 \end{figure}
 The regularization does its job smoothing out small noisy patches and yielding a visually more appealing result, although its classification accuracy is lower compared to those of the fusion (cf. table \ref{table:eval}).
-
-\subsection{Artificialized area}
-\subsubsection{Fusion with Sentinel-2}
-Results using the dilated binary class probabilities from the regularization and the binary Sentinel-2 class probabilities are shown in figure \ref{fig:regul_fusion}.
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}{0.49\textwidth}
-        \centering
-        \includegraphics[width=.9\textwidth]{binary_1_bati}
-        \caption{Buildings from regulation}
-        {\vspace{3mm}
-            \small\centering
-            \fcolorbox{black}{red}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad Buildings
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.49\textwidth}
-        \centering
-        \includegraphics[width=.9\textwidth]{binary_2_dist}
-        \caption{Distance around each building}
-        {\vspace{3mm}
-            \small\centering
-            \fcolorbox{black}{black}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad d=0 
-            \fcolorbox{black}{white}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad d=max
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.49\textwidth}
-        \centering
-        \includegraphics[width=.9\textwidth]{binary_3_bati-dist}
-        \caption{Distance and buildings superposed}
-        {\vspace{3mm}
-            \small\centering
-            \fcolorbox{black}{black}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad d=0 
-            \fcolorbox{black}{white}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad d=max
-             \fcolorbox{black}{red}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad buildings
-        }
-    \end{subfigure}
-    \begin{subfigure}{0.49\textwidth}
-        \centering
-        \includegraphics[width=.9\textwidth]{binary_4_proba_regul_urbain}
-        \caption{Probability to be in artificialized area as linearly decreasing distance function around buildings}
-        {\vspace{3mm}
-            \small\centering
-            \fcolorbox{black}{black}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad P(a)=0 
-            \fcolorbox{black}{white}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad P(a)=1
-        }
-    \end{subfigure}
-    \caption{Urban probability extraction}
-    \label{fig:regul_fusion_steps}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \foreach \n/\captiontext in {classif_regul_urbain/Input: Dilated binary regularization result,
-    classif_S2_urbain/Input: Sentinel-2 binary classification,
-    classif_Fusion_Min/Fusion by Min rule,
-    regul_proba_Fusion_Min_100_1000_100_0_100_70_100_200_0_0_0/Regularization
-    }{
-    \begin{subfigure}{0.49\textwidth}
-        \centering
-        \includegraphics[width=.9\textwidth]{R2_T41000_30000_\n}
-        \caption{\captiontext}
-    \end{subfigure}
-    }
-    \legendebin
-    \caption{Artificialized Area: Input data, Fusion and Regularization}
-    \label{fig:regul_fusion}
-\end{figure}
-
-\subsubsection{Segmentation}
-Results using majority vote of the dilated binary class probabilities within the segmented image regions of Sentinel-2 are shown in figure \ref{fig:regul_fusion}. 
-\begin{figure}[H]
-    \centering
-    \foreach \n/\captiontext in {3,8,20,30}{
-    \begin{subfigure}{0.49\textwidth}
-        \centering
-        \includegraphics[width=.9\textwidth]{regul_seg_maj_\n}
-        \caption{cut=\n}
-    \end{subfigure}
-    }
-    \legendebin
-    \caption{Segmentation}
-    \label{fig:segmentation}
-\end{figure}
-A too high cut leads to an over-generalization and loss of useful information, while an too low cut can keep too many small zones from the initial over-segmentation. A cut of 8 is a good tradeoff and will be further analyzed.
-
-\subsubsection{Comparison}
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}{0.49\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{R2_T41000_30000_regul_proba_Fusion_Min_100_1000_100_0_100_70_100_200_0_0_0}
-        \caption{Fusion and Regularization}
-        \label{subfig:fusionRegComp}
-    \end{subfigure}
-    \begin{subfigure}{0.49\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{regul_seg_maj_8}
-        \caption{Segmentation with CUTS=8}
-    \end{subfigure}
-    \legendebin
-    \caption{Comparison between fusion and segmentation. While the fusion and regularization gives a more smoothed and visually appealing result, the segmentation allows following the object's contours more closely while adaptively fixing its neighborhood} % TODO add sentence on comparison
-    \label{fig:comparison}
-\end{figure}
-The segmentation yields some refinements to the fusion and regulation:
-\begin{itemize}
-    \item It provides a more accurate classification in terms of following the original image contours. The effects of the non-directional dilatation of the building probability is well visible in figure \ref{subfig:fusionRegComp} where the industrial area in the north-western part of the image extends in all directions, which it doesn't in the segmentation result.
-    \item The level of generalization (the size and number of urban patches shown) can be more easily modified in the segmentation by setting a lower or higher segmentation cut threshold. This can be useful to exclude single buildings in the classification and only show bigger urban patches, as well as integrate little green areas enclosed in urban structures. 
-    \item The segmentation approach manages to erase artifacts which were still present in the regularization, such as the classification of the road intersection as a building near the top-left corner.
-    \item The segmentation approach also generally shows a lower confusion between roads and buildings, especially when choosing a high segmentation cut.
-\end{itemize}
-However, a drawback of the Sentinel-2 classification is the arbitrary choice of the CUT parameter which is done manually. Moreover, there is an arbitrary element in the majority vote, causing artifacts at various cuts.
-
-
-\section{Experiments over the entire area}
-In addition to the small-scale visualizations shown, the same results were also produced for the entire area covered by both data sets, spanning 648 $km^2$, although accuracy measures for the classification were not produced for the entire area. They showed some interesting classification results in the Northern part which was cloudy in some of the Sentinel-2 image, producing confusions between urban areas and water (appendix \ref{app:subsec:entire_area}).
 
 \section{Evaluation}
 Evaluation measures for individual classifications, fusion and regularization all using 5 classes are shown in table \ref{table:eval}, both using the weighted and non-weighted class membership probabilities as input. Accuracy measures were calculated over 5 SPOT-6 tiles of $3000\times3000$ meters size each, totalling an area of 45 km$^2$, distributed over the entire study zone of 648 km$^2$ area.
@@ -877,7 +825,102 @@ Evaluation measures for individual classifications, fusion and regularization al
 \label{table:eval}
 \end{table}
 
+\section{Artificialized area}
+\subsection{Fusion with Sentinel-2}
 
+
+Results using the dilated binary class probabilities from the regularization and the binary Sentinel-2 class probabilities are shown in figure \ref{fig:regul_fusion}. The upper two images show the input data produced according to fig. \ref{fig:regul_fusion_steps} for the dilated binary regularization and according to equation \ref{eq:bin2} by regrouping of the 5 classes into two for the Sentinel-2 binary classification. Fusion metrics yielded visually similar results and the Min fusion metric was chosen. Regularization parameters were kept the same as for the 5-class regularization. 
+\begin{figure}[H]
+    \centering
+    \foreach \n/\captiontext in {classif_regul_urbain/Input: Dilated binary regularization,
+    classif_S2_urbain/Input: Sentinel-2 binary classification,
+    classif_Fusion_Min/Fusion by Min rule,
+    regul_proba_Fusion_Min_100_1000_100_0_100_70_100_200_0_0_0/Regularization
+    }{
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=.9\textwidth]{\region_T\tile_BIN_\n}
+        \caption{\captiontext}
+    \end{subfigure}
+    }
+    \legendebin
+    \caption{Artificialized Area: Input data, Fusion and Regularization}
+    \label{fig:regul_fusion}
+\end{figure}
+
+\subsubsection{Segmentation}
+Results using majority vote of the dilated binary class probabilities within the segmented image regions of Sentinel-2 are shown in figure \ref{fig:regul_fusion}. 
+\begin{figure}[H]
+    \centering
+    \foreach \n/\captiontext in {3,8,20,30}{
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=.9\textwidth]{\region_T\tile_regul_seg_maj_\n}
+        \caption{cut=\n}
+    \end{subfigure}
+    }
+    \legendebin
+    \caption{Segmentation}
+    \label{fig:segmentation}
+\end{figure}
+A too high cut leads to an over-generalization and loss of useful information, while an too low cut can keep too many small zones from the initial over-segmentation. A cut of 8 is a good trade-off and will be further analyzed.
+
+\subsubsection{Comparison}
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{\region_T\tile_BIN_regul_proba_Fusion_Min_100_1000_100_0_100_70_100_200_0_0_0}
+        \caption{Fusion and Regularization}
+        \label{subfig:fusionRegComp}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{\region_T\tile_regul_seg_maj_8}
+        \caption{Segmentation with CUTS=8}
+    \end{subfigure}
+    \legendebin
+    \caption{Fusion and regularization followed by segmentation and majority voting. The segmentation step allows following contours in the original image more closely.}
+    \label{fig:comparison}
+\end{figure}
+The segmentation yields some refinements to the fusion and regulation:
+\begin{itemize}
+    \item It provides a more accurate classification in terms of following the original image contours. The effects of the non-directional dilatation of the building probability is well visible in figure \ref{subfig:fusionRegComp} where the industrial area in the north-western part of the image extends in all directions, which it doesn't in the segmentation result.
+    \item The segmentation approach manages to remove some artifacts which were still present in the regularization, such as the classification of the road intersection as a building near the top-left corner.
+\end{itemize}
+However, a drawback of the Sentinel-2 classification is the arbitrary choice of the cut parameter which is done manually.
+
+
+\section{Experiments over the entire area}
+In addition to the small-scale visualizations shown, the same results were also produced for the entire area covered by both data sets, spanning 648 $km^2$, although accuracy measures for the classification were not produced for the entire area. They showed some interesting classification results in the Northern part which was cloudy in some of the Sentinel-2 image, producing confusions between urban areas and water (appendix \ref{app:subsec:entire_area}).
+
+\subsection{Evaluation}
+% TODO add binary evaluation
+
+\section{Other zones}
+\subsection{Finistére}
+The figures below show the results of using the same processing chain as described in the methodology in a zone having less class confusions in the initial classifications.
+
+\renewcommand{\tile}{35000_40000}
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{\region_T\tile_Im_SPOT6_crop}
+        \caption{Original image (SPOT 6)}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{\region_T\tile_train}
+        \caption{Ground Truth}
+    \end{subfigure}
+    \legende
+    \caption{Original image and ground truth. Black parts indicate missing ground truth data.}
+\end{figure}
+\renewcommand{\tile}{41000_30000}
+% TODO add figures
+\subsection{Gironde}
+% TODO add figures
 \newpage
 
 \section{Conclusion}
@@ -900,64 +943,106 @@ To do
 \section{Appendices}
 \subsection{Fusion}
 \label{app:subsec:fusion}
+% Fuzzy logic: Min Max Compromis CompromisWO Prior1 Prior2
 \begin{figure}[H]
     \centering
-    \foreach \n/\captiontext in {Min/Min,
-    Max/Max,
-    Compromis/Compromise rule,
-    CompromisWO/Compromise rule WO
+    \foreach \n/\captiontext in {Min_weighted/Min weighted,
+    Min/Min non-weighted,
+    Max_weighted/Max weighted,
+    Max/Max non-weighted
     }{
     \begin{subfigure}{0.49\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{T41000_30000_classif_Fusion_\n_weighted}
+        \includegraphics[width=\textwidth]{\region_T\tile_classif_Fusion_\n}
         \caption{\captiontext}
     \end{subfigure}
     }
     \legende    
-    \caption{Fusion Results (I)}\label{fig:fusion0}
+    \caption{Fusion Results: Fuzzy Logic (I)}
+    \label{fig:app:fusion-fl-1}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \foreach \n/\captiontext in {Prior1/Prior 1,
-    Prior2/Prior 2,
-    Moyenne/Mean,
-    Bayes/Bayes
-    }{
-    \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{T41000_30000_classif_Fusion_\n_weighted}
-        \caption{\captiontext}
-    \end{subfigure}
-    }
-    \legende
-    \caption{Fusion Results (II)}\label{fig:fusion2}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \foreach \n/\captiontext in {Marge_BayesPond/Margin Weighted Bayes,
-    Marge_SommePond/Margin Weighted Sum,
-    DS_MasseV1/DS Masse V1,
-    DS_MasseSomme/DS Masse Somme
-    }{
-    \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{T41000_30000_classif_Fusion_\n_weighted}
-        \caption{\captiontext}
-    \end{subfigure}
-    }
-    \legende
-    \caption{Fusion Results (III)}\label{fig:fusion3}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \foreach \n/\captiontext in {rf/Random Forest (10000 training samples per class),
-    svmt0/SVM t2 kernel (500 training samples per class),
-    svmt2/SVM t0 kernel (1000 training samples per class)
+    \foreach \n/\captiontext in {Compromis_weighted/Compromise weighted,
+    Compromis/Compromise non-weighted,
+    CompromisWO_weighted/Compromise WO weighted,
+    CompromisWO/Compromise WO non-weighted
     }{
     \begin{subfigure}{0.49\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{T41000_30000_classif_Fusion_\n}
+        \includegraphics[width=\textwidth]{\region_T\tile_classif_Fusion_\n}
+        \caption{\captiontext}
+    \end{subfigure}
+    }
+    \legende    
+    \caption{Fusion Results: Fuzzy Logic (II)}
+    \label{fig:app:fusion-fl-2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \foreach \n/\captiontext in {Prior1_weighted/Prior1 weighted,
+    Prior1/Prior1 non-weighted,
+    Prior2_weighted/Prior2 weighted,
+    Prior2/Prior2 non-weighted
+    }{
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{\region_T\tile_classif_Fusion_\n}
+        \caption{\captiontext}
+    \end{subfigure}
+    }
+    \legende    
+    \caption{Fusion Results: Fuzzy Logic (III)}
+    \label{fig:app:fusion-fl-3}
+\end{figure}
+
+% Marge_Max Marge_SommePond Marge_BayesPond DS_MasseSomme DS_MasseV1   DS_MasseV2  Moyenne Bayes
+
+\begin{figure}[H]
+    \centering
+    \foreach \n/\captiontext in {Marge_Max/Margin Max,
+    Marge_SommePond/Margin Bayesian Sum Weighted,
+    Marge_BayesPond/Margin Bayesian Product Weighted,
+    Moyenne/Mean
+    }{
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{\region_T\tile_classif_Fusion_\n}
+        \caption{\captiontext}
+    \end{subfigure}
+    }
+    \legende
+    \caption{Fusion Results: Bayesian and margin fusion rules (I)}
+    \label{fig:app:fusion-bayes-margin}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \foreach \n/\captiontext in {DS_MasseSomme/DS Mass Sum,
+    DS_MasseV1/DS Masse V2,
+    DS_MasseV2/DS Masse V2,
+    Bayes/Bayes
+    }{
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{\region_T\tile_classif_Fusion_\n}
+        \caption{\captiontext}
+    \end{subfigure}
+    }
+    \legende
+    \caption{Fusion Results (III)}
+    \label{fig:app:fusion-ds}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \foreach \n/\captiontext in {rf_5cl/Random Forest (10000 training samples per class),
+    svmt0_5cl/SVM t2 kernel (500 training samples per class),
+    svmt2_5cl/SVM t0 kernel (1000 training samples per class)
+    }{
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{\region_T\tile_classif_Fusion_\n}
         \caption{\captiontext}
     \end{subfigure}
     }
