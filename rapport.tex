@@ -86,6 +86,14 @@ sorting=nyt
     \fcolorbox{black}{blue}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad Water
     }
     
+\newcommand{\legendeBinEval}{\vspace{3mm}
+    
+    \small\centering
+    \fcolorbox{black}{green}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad Good \hspace{2mm}
+    \fcolorbox{black}{red}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad Bad (GT=1) \hspace{2mm}
+    \fcolorbox{black}{blue}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad Bad (Classification=1)
+    }
+    
 \newcommand{\legendebuf}{\vspace{3mm}
     
     \small\centering
@@ -129,7 +137,7 @@ sorting=nyt
 
 %\MATISresume{Summary}
 %\MATISmotcle{}
-\MATISabstract{Fusion of very high spatial resolution multispectral images with lower spatial resolution image time series having a higher number of bands can enable better land use classification, combining geometric and semantic advantages of both sources. This study presents a workflow to find the extent of urbanized ground using decision-level fusion and regularization at the pixel level of Sentinel-2 and SPOT-6 satellite images. First, both images are classified individually in five classes, using state-of-the-art supervised classification approaches and neural networks. Decision-level fusion and regularization are used for combining the spatial and spectral advantages of both classifiers: First, both sources are merged such as to extract each building with as high semantic and spectral precision as possible. Second, the resulting classification is merged with the Sentinel-2 classifier to find the artificialized area: The building labels from the regulation are dilated in order to connect the building objects and a binary classification is derived from the original Sentinel-2 classification. These binary classifications are reintroduced in a fusion and regularization to find the artificialized area. Segmentation of the Sentinel-2 satellite image and majority voting of the object-level classification are used to refine the contours of the artificialized area.}
+\MATISabstract{Fusion of very high spatial resolution multispectral images with lower spatial resolution image time series having a higher number of bands can enable better land use classification, combining geometric and semantic advantages of both sources. This study presents a workflow to find the extent of urbanized ground using decision-level fusion and regularization at the pixel level of Sentinel-2 and SPOT-6 satellite images. First, both images are classified individually in five classes, using state-of-the-art supervised classification approaches and neural networks. Decision-level fusion and regularization are used for combining the spatial and spectral advantages of both classifiers: First, both sources are merged such as to extract building labels with as high semantic and spectral precision as possible. Second, this product together with the Sentinel-2 classification are used as \textit{a priori} input for a binary classification of the artificialized area. The building labels from the regulation are dilated in order to connect the building objects and a binary classification is derived from the original Sentinel-2 classification. These binary classifications are reintroduced in a fusion and regularization to find the artificialized area. Segmentation of the Sentinel-2 satellite image and majority voting of the object-level classification are used to refine the contours of the artificialized area.}
 
 \MATISkeyword{Decision fusion, Regularization, Urban classification, Multispectral, Urban patch, Artificialization}
 
@@ -156,7 +164,7 @@ Classification of urban land cover is of central importance to monitor urban spr
 % Fusion at decision level
 Fusion schemes can be regrouped on three levels \parencite{ouerghemmi_two-step_2017}:
 \begin{enumerate}
-    \item At an observation level, where the original images are merged, using methods such as pan-sharpening of the multispectral image in order to produce the best single classification;
+    \item At the data level, where the original images are merged, using methods such as pan-sharpening of the multispectral image in order to produce the best single classification;
     \item At the feature level, applying a single classification to extract features from both sources;
     \item At the decision level, where two separate classifications from heterogeneous data sets are merged.
 \end{enumerate}
@@ -164,7 +172,7 @@ Fusion schemes can be regrouped on three levels \parencite{ouerghemmi_two-step_2
 \cite{ouerghemmi_two-step_2017} have proposed several fusion approaches at decision level as well as a regularization whose aim is to smooth the fusion result while using the contrast information of the original image to follow the object contours and reinforce the geometric accuracy after the fusion. \\
 
 % Aim
-The aim of this paper is to propose a decision-level fusion processing chain using freely available and commercial satellite imagery to improve the automatic ground use classification in urban environments in the following five categories: building, roads, water, forest and other vegetation. The two end products are an object-level ground classification map following as precisely as possible the contours of individual buildings and roads as well as a more general map, showing the "urban footprint", which can be understood as the area made irreversibly impermeable through the construction of buildings and roads, including smaller enclosed structures such as backyards \parencite{puissant_object-oriented_2014}. This bigger aggregation of buildings, roads and enclosed small structure will be called hereafter "artificialized area" or "urban footprint".\\
+The aim of this paper is to propose a decision-level fusion processing chain using freely available and commercial satellite imagery to improve the automatic ground use classification in urban environments in the following five categories: building, roads, water, forest and other vegetation. Firstly, a ground classification map is produced following as precisely as possible the contours of individual buildings and roads. Secondly, this product is used as an \textit{a priori} input data set for the derivation a binary land use map of the "urban footprint", which can be understood as the area made irreversibly impermeable through the construction of buildings and roads, including smaller enclosed structures such as backyards \parencite{puissant_object-oriented_2014}. This bigger aggregation of buildings, roads and enclosed small structure will be called hereafter "artificialized area" or "urban footprint".\\
 
 The aim of this study is twofold:
 \begin{enumerate}
@@ -200,7 +208,7 @@ The satellite data used for the ground land classification are described in in t
     \end{subtable}
     \begin{subtable}{.45\textwidth}
         \centering
-        \begin{tabular}{@{}lp{1.8cm}p{2cm}l@{}}\toprule
+        \begin{tabular}{@{}lp{1.7cm}p{2.1cm}l@{}}\toprule
             Band & Resolution after pan-sharpening [m] & Wavelength range [nm] & Domain \\\hline
             B0 & 1.5 & 450 - 520 & Blue \\
             B1 & 1.5 & 530 - 590 & Green \\
@@ -295,10 +303,10 @@ The Random Forest classifier was trained using ground truth data of the freely a
 \figureGT
 
 \subsection{Fusion schemes}\label{sec:fusion}
-% Notation to be used:
+% TODO Notation
 % TODO Explain better: Compromis WO, DS MasseSomme, DS MasseV1, Marge Bayes Pond / Marge Max / Marge Somme Pond / Moyenne  Bayes=Prod, Somme=Bayes Somme, CompromisWO=Walid Ouerghemmi
 
-The fuzzy rules presented below among which Bayesian, Margin-based and Dempster-Shafer fusion rules are based on previous work by \cite{ouerghemmi_two-step_2017}.
+The fusion rules presented below are based on previous work by \cite{ouerghemmi_two-step_2017} and propose pixel-level decision schemes between two or more classifiers based on their class membership probabilities.
 \subsubsection{Fuzzy Rules}\label{sec:fuzzyLogic}
 The first tested fusion approach is based on fuzzy rules \cite{zadeh_fuzzy_1965}. Fuzzy rule theory states that a fuzzy set $\mathcal{A}$ in a reference set $\mathcal{L}$ is a set of ordered pairs:
 \begin{equation}
@@ -362,6 +370,7 @@ The following fusion rules based on fuzzy logic were considered:
         P_{fusion}(x)&=\max\big(P_A(x),\min(P_B(x),K)\big)\label{eq:prior1}\\
         P_{fusion}(x)&=\min\Big(P_A(x),\max\big(P_B(x),(1-K)\big)\Big)\label{eq:prior2}
     \end{align}
+    If the conflict between $A$ and $B$ is high (i.e., $K\approx 0$), only $P_A$ is taken into account (prioritized) and $P_B$ is considered a a specific piece of information. Thus, the fusion result will depend on the order of the classes $A$ and $B$.
 \end{enumerate}
 
 \subsubsection{Bayesian combination}\label{sec:bayesian}
@@ -621,7 +630,7 @@ The binary class probabilities were used to perform a second fusion of the regul
     \label{fig:regul_fusion_steps}
 \end{figure}
 
-This probability map together with binary class probabilities from the Sentinel-2 classifier are used for fusion and regularization, using the Min rule and the same parameters for regularization as described above.\\
+This probability map together with binary class probabilities from the Sentinel-2 classifier are used for fusion and regularization at the resolution of the Sentinel-2 classifier, using the Min rule and the same parameters for regularization as described above.\\
 
 \subsection{Segmentation}
 Secondly, the contours of the artificialized area were refined using a segmentation of the Sentinel-2 image and majority voting of the dilated binary regularization result just described to determine the class labels in the segmented image regions. Segmentation is performed using the "scale climbing" algorithm described in \cite{guigues_scale-sets_2003} and repeated with cuts of 3, 8, 20 and 30. The segmentation starts from an initial over-segmentation (e.g., using a watershed segmentation) and calculates an energy term on each pair of regions $R_1\cup R_2\;\forall (R_1,R_2)\in\mathcal{R}$, with $\mathcal{R}$ being the set of all the regions resulting from the segmentation:
@@ -687,11 +696,9 @@ IoU_{i}=\frac{n_{ii}}{n_{i.}+n_{.i}-n_{ii}}=\frac{\text{TP}}{\text{Pp}+\text{P}-
 \end{equation}
 % TODO evaluation of binary classification
 
-\newpage
-
 \section{Results}
 \subsection{Original Classifications}
-The original classification confirms well the initial observation that the SPOT6 classifier tends to preserve geometries, whereas the S2 classifier overall behaves better, while mixing buildings and roads due to its coarse spatial resolution. Figure \ref{fig:cl_orig\tile} shows the original classification result from the individual classifications on the SPOT 6 and Sentinel-2 images. The presented zone was selected in particular to illustrate problems of both classifiers and improvements yielded by fusion and regulation, however the initial classifiers show better results in other zones.\\ % TODO add appendix\\
+The original classification confirms well the initial observation that the SPOT6 classifier tends to preserve geometries, whereas the S2 classifier overall behaves better, while mixing buildings and roads due to its coarse spatial resolution. Figure \ref{fig:cl_orig\tile} shows the original classification result from the individual classifications on the SPOT 6 and Sentinel-2 images. The presented zone was selected in particular to illustrate problems of both classifiers and improvements yielded by fusion and regulation, however the initial classifiers show better results in other zones (sec. \ref{subsec:otherZones}).
 
 A few particularly interesting confusions can be highlighted on the example of figure \ref{fig:cl_orig\tile}:
 \begin{enumerate}
@@ -723,7 +730,8 @@ Overall, the Sentinel-2 RF classifier tends to recognize well bigger patches of 
 \figureOrigClass
 
 \subsection{Fusion}
-All results of the fusion are shown in appendix \ref{app:subsec:fusion}. The Min and Bayes classifiers produced the best results since they followed the objects most precisely while producing the least class confusions (fig. \ref{fig:fusion}).
+% TODO change to Min classifier
+All results of the fusion are shown in appendix \ref{app:subsec:fusion}. Among the different tested fusion metrics, the Min and Bayes classifiers produced the best results since they followed the objects most precisely while producing the least class confusions (fig. \ref{fig:fusion}). The fusion by classification (RF, SVM) initially tended to produce patches of buildings rather than separate buildings due to missing ground truth data. Adding a sixth buffer class around buildings helped refine the building's contours and obtaining a higher level of detail than just using the Min or Bayes classifier. In certain regions such as the industrial area shown below, some confusion was caused between buildings and the newly introduced artificial class. Since this was however an exception, the SVM t2 classifier with buffer class was further used in the regularization.
 
 \begin{figure}[H]
     \centering 
@@ -739,21 +747,30 @@ All results of the fusion are shown in appendix \ref{app:subsec:fusion}. The Min
         \caption{Fusion: Bayesian Product rule}
         \label{fig:fusion_bayes}
     \end{subfigure}
-    \legende
-    \caption{Fusion by the Min and Bayesian Product rules}
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{\region_T\tile_classif_Fusion_svmt2_5cl}
+        \caption{Fusion: SVM t2 without buffer class}
+        \label{fig:fusion_svmt2}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{\region_T\tile_classif_Fusion_svmt2}
+        \caption{Fusion: SVM t2 with buffer class}
+        \label{fig:fusion_svmt2buf}
+    \end{subfigure}
+    \legendebuf
+    \caption{Fusion rules considered}
     \label{fig:fusion}
 \end{figure}
 
 
-Although these classifiers are among the mathematically most simple, they produced clearly better results than more complex models such as the Prior rule or the Compromise rule (appendix \ref{app:subsec:fusion}). Classification accuracies for the Min and Bayes classifier were also consistently higher (table \ref{table:eval}).\\
-
 With respect to the comments on the individual classifications before fusion:
 \begin{enumerate}
-    \item Both fusion rules manage to get rid of the wrongly classified building patch in the top-left corner (cf. fig. \ref{fig:SPOT6cl\tile}), preferring the Sentinel-2 classification pixels over the one of SPOT6. However, the Bayesian classifier follows the field contours more smoothly than the Min classifier. % TODO show pixel values
+    \item All fusion rules manage to get rid of the wrongly classified building patch in the top-left corner (cf. fig. \ref{fig:SPOT6cl\tile}), preferring the Sentinel-2 classification pixels over the one of SPOT6. The Min classifier follows the field contours less smoothly than the other classifiers.
     \item The industrial zone in the middle is still confused with water in both classifiers, however the southeastern part of it is now correctly classified as vegetation.
-    \item Both fusion methods manage to conserve the level of detail within the urban patch in the bottom-right corner. However, a closer look reveals that the Min classifier preserves more detail in densely populated areas while the Bayes classifier has a slightly higher tendency to connect buildings within patches. 
+    \item All fusion methods manage to conserve the level of detail of individual buildings in the bottom-right corner. The SVM t2 classifier with buffer class preserves most detail of all buildings.
 \end{enumerate}
-Due to the last reason, the Min classifier was further used for regularization in order to keep buildings apart.
 
 \subsection{Regularization}
 
@@ -769,25 +786,25 @@ The regularization product using the above-mentioned regularization model and pa
     \centering 
     \begin{subfigure}{0.49\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{\region_T\tile_classif_Fusion_Min_weighted}
-        \caption{Fusion}
-        \label{subfig:fusion_min\tile}
+        \includegraphics[width=\textwidth]{\region_T\tile_classif_Fusion_svmt2}
+        \caption{Fusion by SVM t2}
+        \label{subfig:fusion_svmt2\tile}
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{\region_T\tile_regul_Min_weighted_G2_l1000_g70_e500_0_0_0}
+        \includegraphics[width=\textwidth]{\region_T\tile_regul_svmt2_G2_l1000_g70_e500_0_0_0}
         \caption{Regularization}
         \label{subfig:regularisation\tile}
     \end{subfigure}
-    \legende
-    \caption{Fusion and Regularization of the Min Classifier}
+    \legendebuf
+    \caption{Fusion and Regularization}
     \label{fig:fusion_regularisation\tile}
 \end{figure}
 }
 \figureFusionRegul
 The regularization does its job smoothing out small noisy patches and yielding a visually more appealing result, although its classification accuracy is lower compared to those of the fusion (cf. table \ref{table:eval}).
 
-\section{Evaluation}
+\subsection{Evaluation}
 Evaluation measures for individual classifications, fusion and regularization all using 5 classes are shown in table \ref{table:eval}, both using the weighted and non-weighted class membership probabilities as input. Accuracy measures were calculated over 5 SPOT-6 tiles of $3000\times3000$ meters size each, totalling an area of 45 km$^2$, distributed over the entire study zone of 648 km$^2$ area.
 \begin{table}[H]
 \centering
@@ -832,8 +849,8 @@ Evaluation measures for individual classifications, fusion and regularization al
 \label{table:eval}
 \end{table}
 
-\section{Artificialized area}
-\subsection{Fusion with Sentinel-2}
+\subsection{Artificialized area}
+\subsubsection{Fusion with Sentinel-2}
 
 
 Results using the dilated binary class probabilities from the regularization and the binary Sentinel-2 class probabilities are shown in figure \ref{fig:regul_fusion}. The upper two images show the input data produced according to fig. \ref{fig:regul_fusion_steps} for the dilated binary regularization and according to equation \ref{eq:bin2} by regrouping of the 5 classes into two for the Sentinel-2 binary classification. Fusion metrics yielded visually similar results and the Min fusion metric was chosen. Regularization parameters were kept the same as for the 5-class regularization. 
@@ -900,15 +917,34 @@ The segmentation yields some refinements to the fusion and regulation:
 \end{itemize}
 However, a drawback of the Sentinel-2 classification is the arbitrary choice of the cut parameter which is done manually.
 
-
-\section{Experiments over the entire area}
+\subsection{Binary Evaluation}
+% TODO add binary evaluation
+\subsection{Experiments over the entire area}
 In addition to the small-scale visualizations shown, the same results were also produced for the entire area covered by both data sets, spanning 648 $km^2$, although accuracy measures for the classification were not produced for the entire area. They showed some interesting classification results in the Northern part which was cloudy in some of the Sentinel-2 image, producing confusions between urban areas and water (appendix \ref{app:subsec:entire_area}).
 
-\subsection{Evaluation}
-% TODO add binary evaluation
+\begin{figure}[H]
+    \centering 
+    \foreach \n/\captiontext in {bdtopo/BDTOPO,
+    osm/OpenStreetMaps,
+    oso/OSO
+    }{
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=.9\textwidth]{\region_T\tile_gt_eval_\n-regul_seg_maj_8}
+        \caption{\captiontext}
+    \end{subfigure}
+    }
+    \legendeBinEval
+    \caption{Binary evaluation: Segmentation, cut=8}
+    \label{fig:eval-bin}
+\end{figure}
 
-\section{Other zones}
-\subsection{Finistére}
+% TODO add table
+
+
+
+\subsection{Other zones}\label{subsec:otherZones}
+\subsubsection{Finistère}
 The figures below show the results of using the same processing chain as described in the methodology in a zone having less class confusions in the initial classifications.
 
 \renewcommand{\tile}{35000_40000}
@@ -918,19 +954,22 @@ The figures below show the results of using the same processing chain as describ
 \figureFusionRegul
 \figureBinRegulSeg
 
-\renewcommand{\tile}{41000_30000}
-% TODO add figures
-\subsection{Gironde}
-% TODO add figures
-\newpage
 
+% TODO add figures
+\subsubsection{Gironde}
+% TODO add figures
+\renewcommand{\region}{gironde}
+\renewcommand{\tile}{10500_34500}
+\figureTile
+\figureGT
+\figureOrigClass
+\figureFusionRegul
+\figureBinRegulSeg
+
+\renewcommand{\region}{finistere}
+\renewcommand{\tile}{41000_30000}
+\newpage
 \section{Conclusion}
-To do 
-\begin{itemize}
-    \item Fusion by Neural Networks
-    \item Fill in empty spots in ground truth with label from a classification (e.g. regularizationation)
-    \item Test in other zone (Gironde)
-\end{itemize}
 \pagebreak
 \printbibliography[heading=bibintoc,heading=bibnumbered]
 
@@ -997,6 +1036,24 @@ To do
     \legende    
     \caption{Fusion Results: Fuzzy Logic (III)}
     \label{fig:app:fusion-fl-3}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \foreach \n/\captiontext in {Prior1_inv_weighted/Prior1 weighted,
+    Prior1_inv/Prior1 non-weighted,
+    Prior2_inv_weighted/Prior2 weighted,
+    Prior2_inv/Prior2 non-weighted
+    }{
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{\region_T\tile_classif_Fusion_\n}
+        \caption{\captiontext}
+    \end{subfigure}
+    }
+    \legende    
+    \caption{Fusion Results: Fuzzy Logic (IV)}
+    \label{fig:app:fusion-fl-45}
 \end{figure}
 
 % Marge_Max Marge_SommePond Marge_BayesPond DS_MasseSomme DS_MasseV1   DS_MasseV2  Moyenne Bayes
