@@ -21,6 +21,9 @@
 \usepackage{booktabs}
 \usepackage[usenames,dvipsnames]{xcolor}
 
+\usepackage{tikz}
+\usetikzlibrary{arrows,shapes,positioning,trees}
+
 \PassOptionsToPackage{hyphens}{url}\usepackage[
 colorlinks=true,
 urlcolor=PineGreen,
@@ -188,7 +191,7 @@ The satellite data used for the ground land classification are described in in t
     \begin{subtable}{.52\textwidth}
         \centering
         \begin{tabular}{@{}lp{2cm}p{2.2cm}l@{}}\toprule
-            Band & Resolution [m] & Central Wavelength [nm] & Domain \\\hline
+            Band & GSD Resolution [m] & Central Wavelength [nm] & Domain \\\hline
             B1 & 60 & 443 & Violet \\
             B2 & 10 & 490 & Blue \\
             B3 & 10 & 560 & Green \\
@@ -209,19 +212,20 @@ The satellite data used for the ground land classification are described in in t
     \begin{subtable}{.45\textwidth}
         \centering
         \begin{tabular}{@{}lp{1.7cm}p{2.1cm}l@{}}\toprule
-            Band & Resolution after pan-sharpening [m] & Wavelength range [nm] & Domain \\\hline
-            B0 & 1.5 & 450 - 520 & Blue \\
-            B1 & 1.5 & 530 - 590 & Green \\
-            B2 & 1.5 & 625-695 & Red \\
-            B3 & 1.5 & 760-890 & VNIR \\\bottomrule
+            Band & GSD Resolution [m] & Wavelength range [nm] & Domain \\\hline
+            B0 & 6.0 & 450 - 520 & Blue \\
+            B1 & 6.0 & 530 - 590 & Green \\
+            B2 & 6.0 & 625-695 & Red \\
+            B3 & 6.0 & 760-890 & VNIR \\
+            B4 & 1.5 & 450-745 & Panchromatic \\\bottomrule
         \end{tabular}
         \caption{SPOT-6 (\cite{SPOT6_technical-sheet})}
         \label{table:bands_spot}
     \end{subtable}
-    \caption{Spatial and spectral resolution of satellite data. VNIR = Visible and Near Infrared, SWIR = Short Wave Infrared}
+    \caption{Spatial and spectral resolution of satellite data. GSD = Ground Sampling Distance, VNIR = Visible and Near Infrared, SWIR = Short Wave Infrared}
     \label{table:bands}
 \end{table}
-Regarding Sentinel-2, only the 10 bands having a resolution of 10 or 20 meters were used and in practice the bands having a resolution of 20 meters were up-scaled to 10 m resolution. Regarding SPOT-6, the resolution was obtained by using a fifth monochromatic band for pan-sharpening. \\
+Regarding Sentinel-2, only the 10 bands having a resolution of 10 or 20 meters were used and in practice the bands having a resolution of 20 meters were up-scaled to 10 m resolution. Regarding SPOT-6, the four bands B0-B3 resolution were used and pan-sharpened to 1.5m resolution by using a fifth panchromatic band for pan-sharpening. \\
 
 Sentinel-2 data was downloaded on several dates in order to mitigate seasonal effects on land cover classification. Table \ref{table:dates} lists the used dates for each satellite and test region.
 \begin{table}[H]
@@ -241,7 +245,6 @@ Region & Sentinel-2 dates & SPOT-6 dates \\\hline
 \caption{Used dates for each classification}
 \label{table:dates}
 \end{table}
-% TODO pq on a pris des dates très similaires pour la Finistère ? date 2016 ?
 
 All classifiers presented below have been applied to a zone spanning in the Finistère region in North-Western France and Gironde in Western France near Bordeaux. Fusion and regularization products are produced for the entire zone covered in both available datasets for Finistère, spanning 648 $km^2$. Results are presented visually for a sub-zone of 0.64 $km^2$ area (fig.  \ref{fig:area\tile}).
 \newcommand{\figureTile}{
@@ -250,7 +253,7 @@ All classifiers presented below have been applied to a zone spanning in the Fini
     \begin{subfigure}{0.49\textwidth}
         \centering
         \includegraphics[width=.9\textwidth]{\region_T\tile_Im_SPOT6}
-        \caption{SPOT 6 image tile (3000$\times$ 3000 m)}
+        \caption{SPOT-6 image tile (3000$\times$ 3000 m)}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.49\textwidth}
@@ -258,7 +261,7 @@ All classifiers presented below have been applied to a zone spanning in the Fini
         \includegraphics[width=.9\textwidth]{\region_T\tile_Im_SPOT6_crop}
         \caption{Zoomed area (800 $\times$ 800 m)}
     \end{subfigure}
-    \caption{SPOT6 image tile and crop window used for visualization in the report}
+    \caption{SPOT-6 image tile and crop window used for visualization in the report}
     \label{fig:area\tile}
     \centering
 \end{figure}
@@ -266,8 +269,8 @@ All classifiers presented below have been applied to a zone spanning in the Fini
 \figureTile
 
 \section{Methodology}\label{sec:method}
-\subsection{Workflow}
-Figure \ref{fig:methods} shows the overall workflow for producing a classification based on fusion, regularization as well as the second classification using the Sentinel2 image, illustrating all the above-mentioned steps. The fusion method producing the best results in terms of visual quality, absence of artifacts and accuracy measures was retained and used further in the Regularization step. Several regularization parameters mentioned above were tested and the set of parameters producing the best map was retained, in terms of its visually appealing properties, truthfulness to real-world objects and classification accuracies.
+\subsection{General Workflow}
+Figure \ref{fig:methods} shows the overall workflow for producing the artificialized area, consisting of two steps: First, different fusion metrics and regularization options are applied individually to the initial classifications on both sources into 5 classes (buildings, road, water, forest and other vegetation) with the aim to extract the building labels as precisely as possible. The fusion and regulation method producing the best results in terms of visual quality, absence of artifacts and accuracy measures is retained and used further as input for the second step. Second, a fusion and regulation is performed between the binary classification of the Sentinel-2 image and the building labels obtained result from step 1 to find the artificialized area and the final result is refined using segmentation of the Sentinel-2 image and majority voting.
 
 \begin{figure}[H]
     \centering
@@ -275,9 +278,46 @@ Figure \ref{fig:methods} shows the overall workflow for producing a classificati
     \caption{Methods}
     \label{fig:methods}
 \end{figure}
+
+\tikzset{
+  basic/.style  = {draw, text width=2cm, font=\sffamily, rectangle},
+  root/.style   = {basic, thin, align=center,
+                   fill=green!30},
+  level 2/.style = {basic, rounded corners=6pt, thin,align=center, fill=green!60,
+                   text width=8em},
+  level 3/.style = {basic, thin, align=left, fill=pink!60, text width=6.5em}
+}
+
+\tikzstyle{data} = [diamond, text centered, draw=black, fill=green!30]
+\tikzstyle{process} = [rectangle, text centered, draw=black, fill=orange!30]
+\tikzstyle{option} = [rectangle, text centered, draw=black]
+
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
+\begin{tikzpicture}[node distance=4cm, level 1/.style={sibling distance=40mm},edge from parent path={(\tikzparentnode.south) -- +(0,-8pt) -| (\tikzchildnode)}, >=latex]
+
+    \node (SPOT6) [data] {SPOT-6};
+    \node (S2) [data,right of=SPOT6] {Sentinel-2};
+    \node (S2-RF) [process, below of=S2] {RF};
+    \node (SPOT6-DCNN) [process, below of=SPOT6] {DCNN};
+    
+    % root of the the initial tree, level 1
+    \node (Fusion) [root, below right of=SPOT6-DCNN] {Fusion}
+    % The first level, as children of the initial tree
+        child {node[level 2] (c2) {Positioning the nodes}}
+        child {node[level 2] (c5) {test}}
+    \foreach \name/\it in {fuzzy/1,bayes/2,margin/3
+    }{  child {node[level 2] (c\it) {\name}}};
+
+
+    \draw [arrow] (S2) -- (S2-RF);
+    \draw [arrow] (SPOT6) -- (SPOT6-DCNN);
+\end{tikzpicture}
+
+
 \subsection{Initial Fusion}
 
-The data sets were first classified individually before fusion: The Sentinel-2 image was classified using 10 bands of each date (tables \ref{table:bands_s2}, \ref{table:dates}) using a Random Forest classifier with 50'000 samples per class and 100 trees \parencite{Breiman2001}. The SPOT-6 image was classified using a Deep Convolutional Neural Network (DCNN) on the four bands of the SPOT-6 image descripbed in tables \ref{table:bands_spot}, \ref{table:dates} (\cite{postadjian_investigating_2017}). Both classifiers produced membership probabilities for the 5 classes described in the introduction (building, roads, water, forest and other vegetation).\\
+The data sets were first classified individually before fusion: The Sentinel-2 image series was classified using 10 bands of each date (tables \ref{table:bands_s2}, \ref{table:dates}) using a Random Forest classifier with 50'000 samples per class and 100 trees \parencite{Breiman2001}. The SPOT-6 image was classified using a Deep Convolutional Neural Network (DCNN) on the four bands of the SPOT-6 image descripbed in tables \ref{table:bands_spot}, \ref{table:dates} (\cite{postadjian_investigating_2017}). Both classifiers produced membership probabilities for the 5 classes described in the introduction (building, roads, water, forest and other vegetation).\\
 
 The Random Forest classifier was trained using ground truth data of the freely available BDTOPO and RPG databases, from which a ground truth map of 5 class labels was derived (\cite{bdtopo,RPG}, fig. \ref{fig:vt\tile}).
 \newcommand{\figureGT}{
@@ -286,7 +326,7 @@ The Random Forest classifier was trained using ground truth data of the freely a
     \begin{subfigure}{0.49\textwidth}
         \centering
         \includegraphics[width=\textwidth]{\region_T\tile_Im_SPOT6_crop}
-        \caption{Original image (SPOT 6)}
+        \caption{Original image (SPOT-6)}
         \label{fig:SPOT6\tile}
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
@@ -304,9 +344,15 @@ The Random Forest classifier was trained using ground truth data of the freely a
 
 \subsection{Fusion schemes}\label{sec:fusion}
 % TODO Notation
-% TODO Explain better: Compromis WO, DS MasseSomme, DS MasseV1, Marge Bayes Pond / Marge Max / Marge Somme Pond / Moyenne  Bayes=Prod, Somme=Bayes Somme, CompromisWO=Walid Ouerghemmi
+% TODO Explain better: Marge Bayes Pond / Marge Max / Marge Somme Pond / Moyenne  
+% Bayes=Prod, Somme=Bayes Somme, CompromisWO=Walid Ouerghemmi
 
-The fusion rules presented below are based on previous work by \cite{ouerghemmi_two-step_2017} and propose pixel-level decision schemes between two or more classifiers based on their class membership probabilities.
+The fusion rules presented below are based on previous work by \cite{ouerghemmi_two-step_2017} and propose pixel-level decision schemes between two or more classifiers based on their class membership probabilities. Following notation is used:
+\begin{align}
+\mathcal{L}&=[{]c_i[}]_{1\leq i\leq n_c}&& \text{Set of classes}\\
+P_S^{(c)}&=P(x\in c|S)&& \text{Membership probability of a sample x in class c according to source S}
+\end{align}
+
 \subsubsection{Fuzzy Rules}\label{sec:fuzzyLogic}
 The first tested fusion approach is based on fuzzy rules \cite{zadeh_fuzzy_1965}. Fuzzy rule theory states that a fuzzy set $\mathcal{A}$ in a reference set $\mathcal{L}$ is a set of ordered pairs:
 \begin{equation}
@@ -324,7 +370,7 @@ In order to account for the fact that fuzzy sets with a strong fuzziness possibl
 \end{equation}
 $n$ being the number of sources and $H_{\alpha QE}$ a fuzziness measure called $\alpha$-quadratic entropy (QE) \parencite{pal_measuring_1994}. Every fuzzy set $i$ is weighted by the fuzziness degree of all other fuzzy sets (classifications) $k\in n,k\neq i$. If the fuzziness degree of the other sets is high the weight on a given source $i$ will be high too. For all of the following fusion rules, the fuzzy sets have been weighted as $\tilde{P}_A(x)=w_A\cdot P_A(x), \tilde{P}_B(x)=w_B\cdot P_B(x)$, $P_A(x)$ and $P_B(x)$ being the original membership probabilities and $w_A, w_B$ their corresponding pointwise measures.\\
 
-All fuzzy rules have been tested using the original class probabilities as input  as well as using the probabilities weighted by the pointwise measure of their fuzziness degree (section \ref{sec:fuzzyLogic}). The hypothesis was that weighting the probabilities by their fuzziness could help improve other fusion methods as well by reducing the importance of fuzzy sources. In fig. \ref{fig:proba_point}, an example is shown where the SPOT 6 classifier has a higher fuzziness degree than the Sentinel-2 classifier, hence the probability of the SPOT 6 classifier is reduced more strongly by the pointwise measure.
+All fuzzy rules have been tested using the original class probabilities as input  as well as using the probabilities weighted by the pointwise measure of their fuzziness degree (section \ref{sec:fuzzyLogic}). The hypothesis was that weighting the probabilities by their fuzziness could help improve other fusion methods as well by reducing the importance of fuzzy sources. In fig. \ref{fig:proba_point}, an example is shown where the SPOT-6 classifier has a higher fuzziness degree than the Sentinel-2 classifier, hence the probability of the SPOT-6 classifier is reduced more strongly by the pointwise measure.
 \begin{figure}[H]
     \centering
     \includegraphics[width=.7\textwidth]{\region_T\tile_proba_point}
@@ -417,7 +463,7 @@ Supervised Classification Methods were used to perform a fusion on decision leve
 \begin{enumerate}
     \item Random Forest (RF), with 10'000 training samples per class and 100 trees (\cite{opencv})
     \item Support Vector Machine (SVM) with a linear kernel ($u'\times v$), with 10'000 training samples per class (\cite{libsvm})
-    \item SVM with a radial basis kernel function: $\exp(-\gamma*|u-v|^2)$, with 500 training samples per class (\cite{libsvm}). Parameters of the SVM model were optimized using cross-validation. % TODO cite
+    \item SVM with a radial basis kernel function: $\exp(-\gamma*|u-v|^2)$, with 500 training samples per class (\cite{libsvm}). Parameters of the SVM model were optimized using cross-validation.
 \end{enumerate}
 Each classifier was trained using the ground truth from the BDTOPO and RPG databases \cite{bdtopo,RPG}. Since the ground truth could contained gaps between buildings, the classifiers tended to aggregate individual buildings as there was no training data available around building. A sixth arbitrary buffer class extending 10 m radius around each building was added to the ground truth to preserve more details of the buildings during classification (fig. \ref{fig:vt_buffer}). Since only building labels were extracted for the subsequent steps, the other class labels as well as the buffer label could be ignored.
 
@@ -532,7 +578,7 @@ Following indicators were produced for each classification (\cite{deMorsier}):
 			& 2 & $n_{21}$ & $n_{22}$ &$\hdots$  &$n_{2r}$ &$n_{22}/n_{2\bullet}$\\ \cline{2-7} 
 			& $\vdots$ & $\vdots$ & $\vdots$ &$\ddots$  &$\vdots$&$\vdots$\\ \cline{2-7} 
 			& r & $n_{r1}$ & $n_{r2}$ &$\hdots$  & $n_{rr}$ & $n_{rr}/n_{r\bullet}$ \\\cline{1-7} 
-			\multicolumn{2}{c|}{UA} & $n_{11}/n_{\bullet 1}$ & $n_{22}/n_{\bullet 2}$ & $n_{11}/n_{\bullet 1}$ & $n_{11}/n_{\bullet 1}$ & OA$=\sum_in_{ii}/n_{\bullet\bullet}$\\
+			\multicolumn{2}{c|}{UA} & $n_{11}/n_{\bullet 1}$ & $n_{22}/n_{\bullet 2}$ & $\hdots$ & $n_{rr}/n_{\bullet r}$ & OA$=\sum_in_{ii}/n_{\bullet\bullet}$\\
 		\end{tabular}
 		\caption{Confusion matrix: UA = User's Accuracy, PA = Producer's Accuracy, OA = Overall Accuracy, $1,2,\hdots,r$=classes. Bullets indexes signify either the sum of the row (e.g., $n_{O\bullet}$), the sum of the column (e.g., $n_{\bullet O}$) or the sum of all elements of the confusion matrix ($n_{\bullet\bullet}$).}
 		\label{table:cm}
@@ -575,14 +621,7 @@ Following indicators were produced for each classification (\cite{deMorsier}):
 \section{Artificialized area}
 
 \subsection{Binary classification}
-The class probabilities from the direct classification on the Sentinel-2 image and the class probabilities from the fusion and regularization were each individually converted to binary classifications to obtain a class for artificialized areas ($a$) and one for non-artificialized areas ($\neg a$). Two options were tested:
-\begin{align}
-    P(a)&=P(b),  &P(\neg a)&= 1 - P(a)\label{eq:bin1}\\
-    P(a)&=P(b)+P(r),  &P(\neg a)&= 1 - P(a)\label{eq:bin2}
-\end{align}
-$P(b)$ and $P(r)$ are the class probabilities for buildings and roads respectively. $b, r\in \mathcal{C}$ are classes of the Sentinel-2 and regularization classifications respectively, each consisting of membership probabilities for five classes $\mathcal{C}, \sum_{c \in \mathcal{C}}P(c) = 1$. Option two was retained only.\\ % TODO move to results section
-
-The binary class probabilities were used to perform a second fusion of the regularization result with the Sentinel-2 classification in order to find the extent of the urban tissue, consisting of contiguous structures of buildings and roads on a coarser level. Firstly, the binary class probabilities were extracted. A linearly decreasing function assigning a probability from 1 to 0 to be in an artificialized area was applied surrounding all buildings, reaching a probability of 0 to be in an artificialized area after a distance of 200 meters (fig. \ref{fig:regul_fusion_steps}).
+Firstly, the binary class probabilities were extracted. A linearly decreasing function assigning a probability from 1 to 0 to be in an artificialized area was applied surrounding all buildings, reaching a probability of 0 to be in an artificialized area after a distance of 200 meters (fig. \ref{fig:regul_fusion_steps}).
 
 \begin{figure}[H]
     \centering
@@ -630,10 +669,21 @@ The binary class probabilities were used to perform a second fusion of the regul
     \label{fig:regul_fusion_steps}
 \end{figure}
 
+The class probabilities from the RF classification on the Sentinel-2 image were converted to a binary classifications to obtain a class for artificialized areas ($a$) and one for non-artificialized areas ($\neg a$). Two options were tested:
+\begin{align}
+    P(a)&=P(b),  &P(\neg a)&= 1 - P(a)\label{eq:bin1}\\
+    P(a)&=P(b)+P(r),  &P(\neg a)&= 1 - P(a)\label{eq:bin2}
+\end{align}
+$P(b)$ and $P(r)$ are the class probabilities for buildings and roads respectively. $b, r\in \mathcal{C}$ are classes of the Sentinel-2 and regularization classifications respectively, each consisting of membership probabilities for five classes $\mathcal{C}, \sum_{c \in \mathcal{C}}P(c) = 1$. Option two was retained only since buildings and roads were conf.\\
+
+The binary class probabilities were used to perform a second fusion of the regularization result with the Sentinel-2 classification in order to find the extent of the urban tissue, consisting of contiguous structures of buildings and roads on a coarser level. 
+
 This probability map together with binary class probabilities from the Sentinel-2 classifier are used for fusion and regularization at the resolution of the Sentinel-2 classifier, using the Min rule and the same parameters for regularization as described above.\\
 
 \subsection{Segmentation}
-Secondly, the contours of the artificialized area were refined using a segmentation of the Sentinel-2 image and majority voting of the dilated binary regularization result just described to determine the class labels in the segmented image regions. Segmentation is performed using the "scale climbing" algorithm described in \cite{guigues_scale-sets_2003} and repeated with cuts of 3, 8, 20 and 30. The segmentation starts from an initial over-segmentation (e.g., using a watershed segmentation) and calculates an energy term on each pair of regions $R_1\cup R_2\;\forall (R_1,R_2)\in\mathcal{R}$, with $\mathcal{R}$ being the set of all the regions resulting from the segmentation:
+Majority voting of the binary fusion and regularization result within segmented parts of the image was performed to follow real-world contours of artificialized areas more closely. Segmentation of the Sentinel-2 image and majority voting of the binary classification after fusion and regularization were performed to follow the contours of the image more closely. In addition, the BD Parcellaire (parcel database, \cite{bdparcellaire}) was also used for majority voting within each parcel, however it was not retained due to mixed residential and agricultural areas. \\
+
+Segmentation is performed using the "scale climbing" algorithm described in \cite{guigues_scale-sets_2003} and repeated with cuts of 3, 8, 20 and 30. The segmentation starts from an initial over-segmentation (e.g., using a watershed segmentation) and calculates an energy term on each pair of regions $R_1\cup R_2\;\forall (R_1,R_2)\in\mathcal{R}$, with $\mathcal{R}$ being the set of all the regions resulting from the segmentation:
 \begin{equation}
     E_{total}^{(R_1\cup R_2)}=E_{data}^{(R_1\cup R_2)}+\lambda E_{compl}^{(R_1\cup R_2)}
 \end{equation}
@@ -689,22 +739,21 @@ Evaluation of the artificialized area was performed against binary classificatio
     \caption{Binary ground truth}
     \label{fig:gt-bin}
 \end{figure}
-In addition to the more qualitative comparison of the binary classifications and the derived ground truths, the intersection over union was calculated based on the confusion matrix (tables \ref{table:cm}, \ref{table:confusion_oneclass}), for a binary classification with class $i$  (\cite{jaccard1912distribution}):
+In addition qualitative comparison between ground truth data and binary maps and accuracy measures presented above, the intersection over union was calculated based on the confusion matrix (tables \ref{table:cm}, \ref{table:confusion_oneclass}), for a binary classification with class $i$  (\cite{jaccard1912distribution}):
 
 \begin{equation}
 IoU_{i}=\frac{n_{ii}}{n_{i.}+n_{.i}-n_{ii}}=\frac{\text{TP}}{\text{Pp}+\text{P}-\text{TP}}
 \end{equation}
-% TODO evaluation of binary classification
 
 \section{Results}
 \subsection{Original Classifications}
-The original classification confirms well the initial observation that the SPOT6 classifier tends to preserve geometries, whereas the S2 classifier overall behaves better, while mixing buildings and roads due to its coarse spatial resolution. Figure \ref{fig:cl_orig\tile} shows the original classification result from the individual classifications on the SPOT 6 and Sentinel-2 images. The presented zone was selected in particular to illustrate problems of both classifiers and improvements yielded by fusion and regulation, however the initial classifiers show better results in other zones (sec. \ref{subsec:otherZones}).
+The original classification confirms well the initial observation that the SPOT-6 classifier tends to preserve geometries, whereas the S2 classifier overall behaves better, while mixing buildings and roads due to its coarse spatial resolution. Figure \ref{fig:cl_orig\tile} shows the original classification result from the individual classifications on the SPOT-6 and Sentinel-2 images. The presented zone was selected in particular to illustrate problems of both classifiers and improvements yielded by fusion and regulation, however the initial classifiers show better results in other zones (sec. \ref{subsec:otherZones}).
 
 A few particularly interesting confusions can be highlighted on the example of figure \ref{fig:cl_orig\tile}:
 \begin{enumerate}
-    \item The SPOT6 classifier discovers a big patch of buildings and road in the top-left corner where there is actually a field (probabilities are shown in fig. \ref{fig:proba_point}). This is probably due to the fact that the field was barren at the time the image was taken and leads to a wrong classification due to the low number of bands. The patch is correctly labelled in the Sentinel-2 classification thanks to the use of a time series.
-    \item In the middle of the image, there is an industrial complex visibly surrounded by roads and concrete ground. Several patches around the building are wrongly classified as water by the SPOT 6 classification while there is also a minor however smaller amount of confusion in Sentinel-2. The confusion is due to the training set of both classifiers which contains muddy waters in other zones than the one represented below having a brighter texture more similar to the pavement surrounding the industrial area.
-    \item Individual buildings in the left-hand corner are nicely recognizable in the SPOT 6 classification, and they are mixed with the roads in the Sentinel-2 classification due to its lower resolution.
+    \item The SPOT-6 classifier discovers a big patch of buildings and road in the top-left corner where there is actually a field (probabilities are shown in fig. \ref{fig:proba_point}). This is probably due to the fact that the field was barren at the time the image was taken and leads to a wrong classification due to the low number of bands. The patch is correctly labelled in the Sentinel-2 classification thanks to the use of a time series.
+    \item In the middle of the image, there is an industrial complex visibly surrounded by roads and concrete ground. Several patches around the building are wrongly classified as water by the SPOT-6 classification while there is also a minor however smaller amount of confusion in Sentinel-2. The confusion is due to the training set of both classifiers which contains muddy waters in other zones than the one represented below having a brighter texture more similar to the pavement surrounding the industrial area.
+    \item Individual buildings in the left-hand corner are nicely recognizable in the SPOT-6 classification, and they are mixed with the roads in the Sentinel-2 classification due to its lower resolution.
 \end{enumerate}
 Overall, the Sentinel-2 RF classifier tends to recognize well bigger patches of culture and forest while showing some confusion between roads and buildings. The SPOT-6 DCNN classifier shows good discrimination between building and roads as well as finer geometric level of detail, however it shows more confuses between classes. Buildings, which are of main interest here, are generally little confused in the Finistère region.
 \newcommand{\figureOrigClass}{
@@ -713,17 +762,17 @@ Overall, the Sentinel-2 RF classifier tends to recognize well bigger patches of 
     \begin{subfigure}{0.49\textwidth}
         \centering
         \includegraphics[width=.9\textwidth]{\region_T\tile_classif_SPOT6_all}
-        \caption{SPOT 6 classification}
+        \caption{SPOT-6 classification}
         \label{fig:SPOT6cl\tile}
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
         \centering
         \includegraphics[width=.9\textwidth]{\region_T\tile_classif_S2_all}
-        \caption{Sentinel 2 classification}
+        \caption{Sentinel-2 classification}
         \label{fig:S2cl\tile}
     \end{subfigure}
     \legende
-    \caption{Original image, ground truth and classifications. The SPOT6 image is superposed transparently in the background of the classifications. }
+    \caption{Original image, ground truth and classifications. The SPOT-6 image is superposed transparently in the background of the classifications. }
     \label{fig:cl_orig\tile}
 \end{figure}
 }
@@ -731,7 +780,8 @@ Overall, the Sentinel-2 RF classifier tends to recognize well bigger patches of 
 
 \subsection{Fusion}
 % TODO change to Min classifier
-All results of the fusion are shown in appendix \ref{app:subsec:fusion}. Among the different tested fusion metrics, the Min and Bayes classifiers produced the best results since they followed the objects most precisely while producing the least class confusions (fig. \ref{fig:fusion}). The fusion by classification (RF, SVM) initially tended to produce patches of buildings rather than separate buildings due to missing ground truth data. Adding a sixth buffer class around buildings helped refine the building's contours and obtaining a higher level of detail than just using the Min or Bayes classifier. In certain regions such as the industrial area shown below, some confusion was caused between buildings and the newly introduced artificial class. Since this was however an exception, the SVM t2 classifier with buffer class was further used in the regularization.
+All results of the fusion are shown in appendix \ref{app:subsec:fusion}. Among the different tested fusion metrics, the Min and Bayes classifiers produced the best results since they followed the objects most precisely while producing the least class confusions (fig. \ref{fig:fusion}). The fusion by classification (RF, SVM) initially tended to produce patches of buildings rather than separate buildings due to missing ground truth data. Adding a sixth buffer class around buildings helped refine the building's contours and obtaining a higher level of detail than just using the Min or Bayes classifier. In certain regions such as the industrial area shown below, some confusion was caused between buildings and the newly introduced artificial class. Since this was however an exception, the SVM t2 classifier with buffer class was further used in the regularization. 
+% RF vs SVMt2: better overall quality
 
 \begin{figure}[H]
     \centering 
@@ -767,9 +817,10 @@ All results of the fusion are shown in appendix \ref{app:subsec:fusion}. Among t
 
 With respect to the comments on the individual classifications before fusion:
 \begin{enumerate}
-    \item All fusion rules manage to get rid of the wrongly classified building patch in the top-left corner (cf. fig. \ref{fig:SPOT6cl\tile}), preferring the Sentinel-2 classification pixels over the one of SPOT6. The Min classifier follows the field contours less smoothly than the other classifiers.
+    \item All fusion rules manage to get rid of the wrongly classified building patch in the top-left corner (cf. fig. \ref{fig:SPOT6cl\tile}), preferring the Sentinel-2 classification pixels over the one of SPOT-6. The Min classifier follows the field contours less smoothly than the other classifiers.
     \item The industrial zone in the middle is still confused with water in both classifiers, however the southeastern part of it is now correctly classified as vegetation.
     \item All fusion methods manage to conserve the level of detail of individual buildings in the bottom-right corner. The SVM t2 classifier with buffer class preserves most detail of all buildings.
+    \item The fusion by classification with additional buffer class occasionally erases small patches of buildings, such as in the top-right part of the image, but overall manages to preserve more detail of individual buildings.
 \end{enumerate}
 
 \subsection{Regularization}
@@ -813,13 +864,11 @@ Evaluation measures for individual classifications, fusion and regularization al
 \multirow{2}{*}{Direct}& Sentinel-2 & 72.0 & 83.7 & 81.5 & 64.6 & 52.2 \\
 & SPOT-6 & 73.3 & 85.2 & 70.8 & 63.4 & 62.5 \\\hline
 
-\multirow{14}{*}{Fusion}& Bayesian Product & 79.1 & 88.5 & 85.0 & 76.7 & 73.8 \\
+\multirow{20}{*}{Fusion}& Bayesian Product & 79.1 & 88.5 & 85.0 & 76.7 & 73.8 \\
 & Bayesian Sum & 78.9 & 88.3 & 85.1 & 76.1 & 73.6 \\
 & Mean  & 78.3 & 87.9 & 84.8 & 74.8 & 71.9 \\
-
 & Compromise & 78.8 & 88.2 & 84.5 & 76.2 & 72.5 \\
 & Compromise WO & 78.8 & 88.2 & 84.5 & 76.2 & 72.5 \\
-
 & \textbf{DS V1} & 79.1 & 88.4 & 85.1 & 76.5 & 73.7 \\
 & DS V2 & 79.0 & 88.4 & 85.1 & 76.4 & 73.7 \\
 & Margin Bayes Weighted  & 78.4 & 88.0 & 84.7 & 75.1 & 72.0 \\
@@ -827,12 +876,9 @@ Evaluation measures for individual classifications, fusion and regularization al
 & Margin Sum Weighted & 78.0 & 87.7 & 84.6 & 74.0 & 71.0 \\
 & \textbf{Min} & 79.1 & 88.4 & 84.7 & 76.7 & 73.8 \\
 & Max & 77.3 & 87.4 & 84.2 & 73.2 & 70.5 \\
-
-
 & Prior1 & 73.3 & 85.2 & 70.8 & 63.4 & 62.5 \\
-& Prior2 & 73.3 & 85.2 & 70.8 & 63.4 & 62.5 \\\hline
-
-\multirow{6}{*}{\parbox{1.8cm}{Fusion weighted}}& Compromise weighted & 78.6 & 88.1 & 83.6 & 75.9 & 72.2 \\
+& Prior2 & 73.3 & 85.2 & 70.8 & 63.4 & 62.5 \\
+& Compromise weighted & 78.6 & 88.1 & 83.6 & 75.9 & 72.2 \\
 & Compromise WO weighted & 78.6 & 88.1 & 83.6 & 75.9 & 72.2 \\
 & Max weighted & 76.7 & 87.1 & 83.9 & 72.7 & 70.3 \\
 & Min weighted & 78.9 & 88.2 & 83.8 & 76.4 & 73.5 \\
@@ -853,7 +899,7 @@ Evaluation measures for individual classifications, fusion and regularization al
 \subsubsection{Fusion with Sentinel-2}
 
 
-Results using the dilated binary class probabilities from the regularization and the binary Sentinel-2 class probabilities are shown in figure \ref{fig:regul_fusion}. The upper two images show the input data produced according to fig. \ref{fig:regul_fusion_steps} for the dilated binary regularization and according to equation \ref{eq:bin2} by regrouping of the 5 classes into two for the Sentinel-2 binary classification. Fusion metrics yielded visually similar results and the Min fusion metric was chosen. Regularization parameters were kept the same as for the 5-class regularization. 
+Results using the dilated binary class probabilities from the regularization and the binary Sentinel-2 class probabilities are shown in figure \ref{fig:regul_fusion}. The upper two images show the input data produced according to fig. \ref{fig:regul_fusion_steps} for the dilated binary regularization and produced according to equation \ref{eq:bin2} by regrouping of the 5 classes into two for the Sentinel-2 binary classification. Fusion metrics yielded visually similar results and the Min fusion metric was chosen. Regularization parameters were kept the same as for the 5-class regularization. 
 \begin{figure}[H]
     \centering
     \foreach \n/\captiontext in {classif_regul_urbain/Input: Dilated binary regularization,
@@ -919,13 +965,11 @@ However, a drawback of the Sentinel-2 classification is the arbitrary choice of 
 
 \subsection{Binary Evaluation}
 % TODO add binary evaluation
-\subsection{Experiments over the entire area}
-In addition to the small-scale visualizations shown, the same results were also produced for the entire area covered by both data sets, spanning 648 $km^2$, although accuracy measures for the classification were not produced for the entire area. They showed some interesting classification results in the Northern part which was cloudy in some of the Sentinel-2 image, producing confusions between urban areas and water (appendix \ref{app:subsec:entire_area}).
 
 \begin{figure}[H]
     \centering 
     \foreach \n/\captiontext in {bdtopo/BDTOPO,
-    osm/OpenStreetMaps,
+    osm/OSM,
     oso/OSO
     }{
     \begin{subfigure}{0.49\textwidth}
@@ -940,10 +984,38 @@ In addition to the small-scale visualizations shown, the same results were also 
 \end{figure}
 
 % TODO add table
+Accuracy measures calculated on 5 SPOT-6 tiles of a total area of 45 km$^2$ for ever ground truth are given in table \ref{table:accuracy-bin}.
+\begin{table}[H]
+\centering
+\begin{tabular}{llp{1.5cm}llp{1.5cm}}
+\toprule
+\textbf{Classification} & \textbf{Ground Truth} & \textbf{F-Score Buildings} & \textbf{Kappa} & \textbf{OA} & \textbf{IU buildings} \\\hline\hline
+\multirow{3}{*}{Binary Regularization Input} & BDTOPO & 86.7 & 83.2 & 94.5 & 84.9\\
+ & OSO & 56.8 & 50.1 & 86.8 & 62.6\\
+ & OSM & 58.3 & 51.9 & 87.3 & 63.6\\\hline
+\multirow{3}{*}{Binary Sentinel-2 Input} & BDTOPO & 65.2 & 56.4 & 85.9 & 66.1 \\
+ & OSO & 63.9 & 58.3 & 89.3 & 67.4\\
+ & OSM & 52.6 & 45.5 & 86.0 & 60.3\\\hline
+\multirow{3}{*}{Fusion Min} & BDTOPO & 79.8 & 75.2 & 92.4 &  78.3 \\
+& OSO & 66.9 & 62.2 & 91.2 & 70.1\\
+ & OSM & 62.9 & 57.6 & 90.2 &  67.4 \\\hline
+ \multirow{3}{*}{Regularization} & BDTOPO & 79.7 & 75.1 & 92.5 & 78.7 \\
+ & OSO & 67.4 & 62.8 & 91.5 & 70.5 \\
+ & OSM & 64.4 & 59.4 & 90.7 & 68.4 \\\hline
+ \multirow{3}{*}{Segmentation (cut=8)} & BDTOPO & 68.6 & 62.5 & 89.3 & 70.1 \\
+ & OSO & 65.0 & 60.5 & 91.9 & 69.4 \\
+ & OSM & 65.3 & 60.9 & 92.0 & 69.6\\\bottomrule
+\end{tabular}
+\caption{Accuracy measures for Artificialized Area: F-Score for the buildings class, Kappa, Overall Accuracy (OA) and Intersection over Union (IU) for the buildings class.}
+\label{table:accuracy-bin}
+\end{table}
+The dilated BDTOPO ground truth generally yields highest accuracy measures, showing the strongest correspondence with the binary classifications. The Fusion and Regularization improve the accuracy measures over the individual input classifications. The segmentation in most cases reduces the accuracy scores because it tends to reduce the extent of the areas classified as artificialized and all ground truth maps over-estimate the artificialized area.
 
-
+\subsection{Experiments over the entire area}
+In addition to the small-scale visualizations shown, the same results were also produced for the entire area covered by both data sets, spanning 648 $km^2$, although accuracy measures for the classification were not produced for the entire area. They showed some interesting classification results in the Northern part which was cloudy in some of the Sentinel-2 image, producing confusions between urban areas and water (appendix \ref{app:subsec:entire_area}).
 
 \subsection{Other zones}\label{subsec:otherZones}
+
 \subsubsection{Finistère}
 The figures below show the results of using the same processing chain as described in the methodology in a zone having less class confusions in the initial classifications.
 
@@ -954,10 +1026,8 @@ The figures below show the results of using the same processing chain as describ
 \figureFusionRegul
 \figureBinRegulSeg
 
-
-% TODO add figures
+% TODO evaluation numbers
 \subsubsection{Gironde}
-% TODO add figures
 \renewcommand{\region}{gironde}
 \renewcommand{\tile}{10500_34500}
 \figureTile
@@ -965,11 +1035,13 @@ The figures below show the results of using the same processing chain as describ
 \figureOrigClass
 \figureFusionRegul
 \figureBinRegulSeg
+% TODO evaluation numbers
 
 \renewcommand{\region}{finistere}
 \renewcommand{\tile}{41000_30000}
 \newpage
 \section{Conclusion}
+
 \pagebreak
 \printbibliography[heading=bibintoc,heading=bibnumbered]
 
@@ -1112,7 +1184,7 @@ The figures below show the results of using the same processing chain as describ
 \newpage
 
 \subsection{Entire Area}
-The figures below correspond to the presented results and have been calculated over the entire area (648 $km^2$) covered by the SPOT 6 and Sentinel-2 data sets. The top-left corner of the Sentinel-2 classification shows bad results due to cloudy atmospheric conditions in the original image.
+The figures below correspond to the presented results and have been calculated over the entire area (648 $km^2$) covered by the SPOT-6 and Sentinel-2 data sets. The top-left corner of the Sentinel-2 classification shows bad results due to cloudy atmospheric conditions in the original image.
 
 \label{app:subsec:entire_area}
 
@@ -1126,10 +1198,10 @@ The figures below correspond to the presented results and have been calculated o
     \begin{subfigure}{0.49\textwidth}
         \centering
         \includegraphics[width=\textwidth]{all_classif_SPOT6}
-        \caption{SPOT6}
+        \caption{SPOT-6}
     \end{subfigure}
     \legende
-    \caption{Initial classifications from Sentinel-2 and SPOT 6}
+    \caption{Initial classifications from Sentinel-2 and SPOT-6}
 \end{figure}
 
 \begin{figure}[H]
