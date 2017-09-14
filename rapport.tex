@@ -744,7 +744,7 @@ Overall, the Sentinel-2 RF classifier tends to recognize well bigger patches of 
 
 \subsection{Fusion}
 % TODO change to Min classifier
-All results of the fusion are shown in appendix \ref{app:subsec:fusion}. Among the different tested fusion metrics, the Min and Bayes classifiers produced the best results since they followed the objects most precisely while producing the least class confusions (fig. \ref{fig:fusion}). The fusion by classification (RF, SVM) initially tended to produce patches of buildings rather than separate buildings due to missing ground truth data. Adding a sixth buffer class around buildings helped refine the building's contours and obtaining a higher level of detail than just using the Min or Bayes classifier. In certain regions such as the industrial area shown below, some confusion was caused between buildings and the newly introduced artificial class. Since this was however an exception, the SVM t2 classifier with buffer class was further used in the regularization. 
+All results of the fusion are shown in appendix \ref{app:subsec:fusion}. Among the different tested fusion metrics, the Min and Bayes classifiers produced the best results since they followed the objects most precisely while producing the least class confusions (fig. \ref{fig:fusion\tile}). The fusion by classification (RF, SVM) initially tended to produce patches of buildings rather than separate buildings due to missing ground truth data. Adding a sixth buffer class around buildings helped refine the building's contours and obtaining a higher level of detail than just using the Min or Bayes classifier. In certain regions such as the industrial area shown below, some confusion was caused between buildings and the newly introduced artificial class. Since this was however an exception, the SVM t2 classifier with buffer class was further used in the regularization. 
 % RF vs SVMt2: better overall quality
 
 \begin{figure}[H]
@@ -753,29 +753,29 @@ All results of the fusion are shown in appendix \ref{app:subsec:fusion}. Among t
         \centering
         \includegraphics[width=\textwidth]{\region_T\tile_classif_Fusion_Min_weighted}
         \caption{Fusion: Min rule}
-        \label{fig:fusion_min}
+        \label{fig:fusion_min\tile}
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
         \centering
         \includegraphics[width=\textwidth]{\region_T\tile_classif_Fusion_Bayes}
         \caption{Fusion: Bayesian Product rule}
-        \label{fig:fusion_bayes}
+        \label{fig:fusion_bayes\tile}
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
         \centering
         \includegraphics[width=\textwidth]{\region_T\tile_classif_Fusion_svmt2_5cl}
         \caption{Fusion: SVM t2 without buffer class}
-        \label{fig:fusion_svmt2}
+        \label{fig:fusion_svmt2\tile}
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
         \centering
         \includegraphics[width=\textwidth]{\region_T\tile_classif_Fusion_svmt2}
         \caption{Fusion: SVM t2 with buffer class}
-        \label{fig:fusion_svmt2buf}
+        \label{fig:fusion_svmt2buf\tile}
     \end{subfigure}
     \legendebuf
     \caption{Fusion rules considered}
-    \label{fig:fusion}
+    \label{fig:fusion\tile}
 \end{figure}
 
 
@@ -786,7 +786,7 @@ With respect to the comments on the individual classifications before fusion:
     \item All fusion methods manage to conserve the level of detail of individual buildings in the bottom-right corner. The SVM t2 classifier with buffer class preserves most detail of all buildings.
     \item The fusion by classification with additional buffer class occasionally erases small patches of buildings, such as in the top-right part of the image, but overall manages to preserve more detail of individual buildings.
 \end{enumerate}
-
+The same observations were made in all test zones.
 \subsection{Regularization}
 
 The model and parameters chosen for the final regularization are as follows:
@@ -922,8 +922,8 @@ A too high cut leads to an over-generalization and loss of useful information, w
 \figureBinRegulSeg
 The segmentation yields some refinements to the fusion and regulation:
 \begin{itemize}
-    \item It provides a more accurate classification in terms of following the original image contours. The effects of the non-directional dilatation of the building probability is well visible in figure \ref{subfig:fusionRegComp\tile} where the industrial area in the north-western part of the image extends in all directions, which it doesn't in the segmentation result.
-    \item The segmentation approach manages to remove some artifacts which were still present in the regularization, such as the classification of the road intersection as a building near the top-left corner.
+    \item It provides a more accurate classification in terms of following the original image contours. The effects of the non-directional dilatation of the building probability is well visible in figure \ref{subfig:fusionRegComp\tile} where the industrial area in the North-Western part of the image extends in all directions, which it doesn't in the segmentation result.
+    \item The segmentation approach manages to remove some artifacts which were still present in the regularization, such as the classification of the road intersection as a building near the North-Eastern part.
 \end{itemize}
 However, a drawback of the Sentinel-2 classification is the arbitrary choice of the cut parameter which is done manually.
 
@@ -946,8 +946,13 @@ However, a drawback of the Sentinel-2 classification is the arbitrary choice of 
     \caption{Binary evaluation: Segmentation, cut=8}
     \label{fig:eval-bin}
 \end{figure}
+The following aspects can be underlined:
+\begin{itemize}
+    \item The OSM ground truth is rather simplified and contains few, rough urbanized patches.
+    \item The OSO ground truth is partial, containing gaps of artificial areas within urban patches. This is due to the resolution and methodology used for the classification and the selection of classes considered as urban.
+    \item The dilated BDTOPO ground truth is the most truthful, however it is also approximate and exceeds the urban area due to the dilatation used to create it.
+\end{itemize}
 
-% TODO add table
 Accuracy measures calculated on 5 SPOT-6 tiles of a total area of 45 km$^2$ for ever ground truth are given in table \ref{table:accuracy-bin}.
 \begin{table}[H]
 \centering
@@ -997,8 +1002,33 @@ The figures below show the results of using the same processing chain as describ
 \figureTile
 \figureGT
 \figureOrigClass
+\begin{figure}[H]
+    \centering 
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{\region_T\tile_classif_Fusion_Min_weighted}
+        \caption{Fusion: Min rule}
+        \label{fig:fusion_min\tile}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{\region_T\tile_classif_Fusion_svmt2}
+        \caption{Fusion: SVM t2 with buffer class}
+        \label{fig:fusion_svmt2buf\tile}
+    \end{subfigure}
+    \legendebuf
+    \caption{Fusion rules considered}
+    \label{fig:fusion\tile}
+\end{figure}
 \figureFusionRegul
 \figureBinRegulSeg
+
+Following differences with with respect to the Finistère region can be underlined:
+\begin{itemize}
+    \item Both classifiers have significant flaws : the SPOT-6 as well as the Sentinel-2 classifiers discover wrong buildings along roads in the North-Eastern part (fig. \ref{fig:cl_orig\tile}).
+    The fusion
+    \item The only fusion metric that manages to get rid of the buildings is the fusion by classification, using a sixth buffer class (fig. \ref{fig:fusion\tile})
+\end{itemize}
 % TODO evaluation numbers
 
 \renewcommand{\region}{finistere}
@@ -1223,6 +1253,31 @@ The figures below correspond to the presented results and have been calculated o
     \legendebin
     \caption{Segmentation and majority vote (II)}
 \end{figure}
+
+\begin{figure}[H]
+    \centering 
+    \foreach \n/\captiontext in {oso/OSO,osm/OSM}{
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{all_train_\n_overlay}
+        \caption{\captiontext}
+    \end{subfigure}
+    }
+    \legendebin
+    \caption{Ground truth}
+\end{figure}
+
+\begin{figure}[H]
+    \centering 
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{all_train_bdtopo_overlay}
+        \caption{BDTOPO}
+    \end{subfigure}
+    \legendebin
+    \caption{Ground truth}
+\end{figure}
+
 \restoregeometry
 \end{document}
 \endinput
