@@ -279,42 +279,6 @@ Figure \ref{fig:methods} shows the overall workflow for producing the artificial
     \label{fig:methods}
 \end{figure}
 
-\tikzset{
-  basic/.style  = {draw, text width=2cm, font=\sffamily, rectangle},
-  root/.style   = {basic, thin, align=center,
-                   fill=green!30},
-  level 2/.style = {basic, rounded corners=6pt, thin,align=center, fill=green!60,
-                   text width=8em},
-  level 3/.style = {basic, thin, align=left, fill=pink!60, text width=6.5em}
-}
-
-\tikzstyle{data} = [diamond, text centered, draw=black, fill=green!30]
-\tikzstyle{process} = [rectangle, text centered, draw=black, fill=orange!30]
-\tikzstyle{option} = [rectangle, text centered, draw=black]
-
-\tikzstyle{arrow} = [thick,->,>=stealth]
-
-\begin{tikzpicture}[node distance=4cm, level 1/.style={sibling distance=40mm},edge from parent path={(\tikzparentnode.south) -- +(0,-8pt) -| (\tikzchildnode)}, >=latex]
-
-    \node (SPOT6) [data] {SPOT-6};
-    \node (S2) [data,right of=SPOT6] {Sentinel-2};
-    \node (S2-RF) [process, below of=S2] {RF};
-    \node (SPOT6-DCNN) [process, below of=SPOT6] {DCNN};
-    
-    % root of the the initial tree, level 1
-    \node (Fusion) [root, below right of=SPOT6-DCNN] {Fusion}
-    % The first level, as children of the initial tree
-        child {node[level 2] (c2) {Positioning the nodes}}
-        child {node[level 2] (c5) {test}}
-    \foreach \name/\it in {fuzzy/1,bayes/2,margin/3
-    }{  child {node[level 2] (c\it) {\name}}};
-
-
-    \draw [arrow] (S2) -- (S2-RF);
-    \draw [arrow] (SPOT6) -- (SPOT6-DCNN);
-\end{tikzpicture}
-
-
 \subsection{Initial Fusion}
 
 The data sets were first classified individually before fusion: The Sentinel-2 image series was classified using 10 bands of each date (tables \ref{table:bands_s2}, \ref{table:dates}) using a Random Forest classifier with 50'000 samples per class and 100 trees \parencite{Breiman2001}. The SPOT-6 image was classified using a Deep Convolutional Neural Network (DCNN) on the four bands of the SPOT-6 image descripbed in tables \ref{table:bands_spot}, \ref{table:dates} (\cite{postadjian_investigating_2017}). Both classifiers produced membership probabilities for the 5 classes described in the introduction (building, roads, water, forest and other vegetation).\\
