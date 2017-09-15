@@ -140,7 +140,7 @@ sorting=nyt
 
 %\MATISresume{Summary}
 %\MATISmotcle{}
-\MATISabstract{Fusion of very high spatial resolution multispectral images with lower spatial resolution image time series having a higher number of bands can enable better land use classification, combining geometric and semantic advantages of both sources. This study presents a workflow to find the extent of urbanized ground using decision-level fusion and regularization at the pixel level of Sentinel-2 and SPOT-6 satellite images. First, both images are classified individually in five classes, using state-of-the-art supervised classification approaches and neural networks. Decision-level fusion and regularization are used for combining the spatial and spectral advantages of both classifiers: First, both sources are merged such as to extract building labels with as high semantic and spectral precision as possible. Second, this product together with the Sentinel-2 classification are used as \textit{a priori} input for a binary classification of the artificialized area. The building labels from the regulation are dilated in order to connect the building objects and a binary classification is derived from the original Sentinel-2 classification. These binary classifications are reintroduced in a fusion and regularization to find the artificialized area. Segmentation of the Sentinel-2 satellite image and majority voting of the object-level classification are used to refine the contours of the artificialized area.}
+\MATISabstract{Fusion of very high spatial resolution multispectral images with lower spatial resolution image time series having a higher number of bands can enable better land use classification, combining geometric and semantic advantages of both sources. This study presents a workflow to find the extent of urbanized ground using decision-level fusion and regularization at the pixel level of Sentinel-2 and SPOT-6 satellite images. First, both images are classified individually in five classes, using state-of-the-art supervised classification approaches and neural networks. Decision-level fusion and regularization are used for combining the spatial and spectral advantages of both classifiers: First, both sources are merged such as to extract building labels with as high semantic and spectral precision as possible. Second, this product together with the Sentinel-2 classification are used as \textit{a priori} input for a binary classification of the artificialized area. The building labels from the regularization are dilated in order to connect the building objects and a binary classification is derived from the original Sentinel-2 classification. These binary classifications are reintroduced in a fusion and regularization to find the artificialized area. Segmentation of the Sentinel-2 satellite image and majority voting of the object-level classification are used to refine the contours of the artificialized area.}
 
 \MATISkeyword{Decision fusion, Regularization, Urban classification, Multispectral, Urban patch, Artificialization}
 
@@ -270,7 +270,7 @@ All classifiers presented below have been applied to a zone spanning in the Fini
 
 \section{Methodology}\label{sec:method}
 \subsection{General Workflow}
-Figure \ref{fig:methods} shows the overall workflow for producing the artificialized area, consisting of two steps: First, different fusion metrics and regularization options are applied individually to the initial classifications on both sources into 5 classes (buildings, road, water, forest and other vegetation) with the aim to extract the building labels as precisely as possible. The fusion and regulation method producing the best results in terms of visual quality, absence of artifacts and accuracy measures is retained and used further as input for the second step. Second, a fusion and regulation is performed between the binary classification of the Sentinel-2 image and the building labels obtained result from step 1 to find the artificialized area and the final result is refined using segmentation of the Sentinel-2 image and majority voting.
+Figure \ref{fig:methods} shows the overall workflow for producing the artificialized area, consisting of two steps: First, different fusion metrics and regularization options are applied individually to the initial classifications on both sources into 5 classes (buildings, road, water, forest and other vegetation) with the aim to extract the building labels as precisely as possible. The fusion and regularization method producing the best results in terms of visual quality, absence of artifacts and accuracy measures is retained and used further as input for the second step. Second, a fusion and regularization is performed between the binary classification of the Sentinel-2 image and the building labels obtained result from step 1 to find the artificialized area and the final result is refined using segmentation of the Sentinel-2 image and majority voting.
 
 \begin{figure}[H]
     \centering
@@ -592,7 +592,7 @@ Firstly, the binary class probabilities were extracted. A linearly decreasing fu
     \begin{subfigure}{0.49\textwidth}
         \centering
         \includegraphics[width=.9\textwidth]{\region_T\tile_binary_1_bati}
-        \caption{Buildings from regulation}
+        \caption{Buildings from regularization}
         {\vspace{3mm}
             \small\centering
             \fcolorbox{black}{red}{\rule{0pt}{6pt}\rule{6pt}{0pt}}\quad Buildings
@@ -711,7 +711,7 @@ IoU_{i}=\frac{n_{ii}}{n_{i.}+n_{.i}-n_{ii}}=\frac{\text{TP}}{\text{Pp}+\text{P}-
 
 \section{Results}
 \subsection{Original Classifications}
-The original classification confirms well the initial observation that the SPOT-6 classifier tends to preserve geometries, whereas the S2 classifier overall behaves better, while mixing buildings and roads due to its coarse spatial resolution. Figure \ref{fig:cl_orig\tile} shows the original classification result from the individual classifications on the SPOT-6 and Sentinel-2 images. The presented zone was selected in particular to illustrate problems of both classifiers and improvements yielded by fusion and regulation, however the initial classifiers show better results in other zones (sec. \ref{subsec:otherZones}).
+The original classification confirms well the initial observation that the SPOT-6 classifier tends to preserve geometries, whereas the S2 classifier overall behaves better, while mixing buildings and roads due to its coarse spatial resolution. Figure \ref{fig:cl_orig\tile} shows the original classification result from the individual classifications on the SPOT-6 and Sentinel-2 images. The presented zone was selected in particular to illustrate problems of both classifiers and improvements yielded by fusion and regularization, however the initial classifiers show better results in other zones (sec. \ref{subsec:otherZones}).
 
 A few particularly interesting confusions can be highlighted on the example of figure \ref{fig:cl_orig\tile}:
 \begin{enumerate}
@@ -719,7 +719,7 @@ A few particularly interesting confusions can be highlighted on the example of f
     \item In the middle of the image, there is an industrial complex visibly surrounded by roads and concrete ground. Several patches around the building are wrongly classified as water by the SPOT-6 classification while there is also a minor however smaller amount of confusion in Sentinel-2. The confusion is due to the training set of both classifiers which contains muddy waters in other zones than the one represented below having a brighter texture more similar to the pavement surrounding the industrial area.
     \item Individual buildings in the left-hand corner are nicely recognizable in the SPOT-6 classification, and they are mixed with the roads in the Sentinel-2 classification due to its lower resolution.
 \end{enumerate}
-Overall, the Sentinel-2 RF classifier tends to recognize well bigger patches of culture and forest while showing some confusion between roads and buildings. The SPOT-6 DCNN classifier shows good discrimination between building and roads as well as finer geometric level of detail, however it shows more confuses between classes. Buildings, which are of main interest here, are generally little confused in the Finistère region.
+Overall, the Sentinel-2 RF classifier tends to recognize well bigger patches of culture and forest while showing some confusion between roads and buildings. The SPOT-6 DCNN classifier shows good discrimination between building and roads as well as finer geometric level of detail, however it shows more confusions between classes. Buildings, which are of main interest here, are generally less confused in the Finistère region.
 \newcommand{\figureOrigClass}{
 \begin{figure}[H]
     \centering
@@ -774,7 +774,7 @@ All results of the fusion are shown in appendix \ref{app:subsec:fusion}. Among t
         \label{fig:fusion_svmt2buf\tile}
     \end{subfigure}
     \legendebuf
-    \caption{Fusion rules considered}
+    \caption{Fuzzy fusion rules and fusion by classification}
     \label{fig:fusion\tile}
 \end{figure}
 
@@ -812,7 +812,7 @@ The regularization product using the above-mentioned regularization model and pa
         \label{subfig:regularisation\tile}
     \end{subfigure}
     \legendebuf
-    \caption{Fusion and Regularization}
+    \caption{SVM t2 Fusion and Regularization}
     \label{fig:fusion_regularisation\tile}
 \end{figure}
 }
@@ -920,7 +920,7 @@ A too high cut leads to an over-generalization and loss of useful information, w
 \end{figure}
 }
 \figureBinRegulSeg
-The segmentation yields some refinements to the fusion and regulation:
+The segmentation yields some refinements to the fusion and regularization:
 \begin{itemize}
     \item It provides a more accurate classification in terms of following the original image contours. The effects of the non-directional dilatation of the building probability is well visible in figure \ref{subfig:fusionRegComp\tile} where the industrial area in the North-Western part of the image extends in all directions, which it doesn't in the segmentation result.
     \item The segmentation approach manages to remove some artifacts which were still present in the regularization, such as the classification of the road intersection as a building near the North-Eastern part.
@@ -949,34 +949,36 @@ However, a drawback of the Sentinel-2 classification is the arbitrary choice of 
 The following aspects can be underlined:
 \begin{itemize}
     \item The OSM ground truth is rather simplified and contains few, rough urbanized patches.
-    \item The OSO ground truth is partial, containing gaps of artificial areas within urban patches. This is due to the resolution and methodology used for the classification and the selection of classes considered as urban.
+    \item The OSO ground truth is partial, containing gaps of artificial areas 
+    within urban patches. This is due to the resolution and methodology used for the classification and the selection of classes considered as urban.
     \item The dilated BDTOPO ground truth is the most truthful, however it is also approximate and exceeds the urban area due to the dilatation used to create it.
 \end{itemize}
 
-Accuracy measures calculated on 5 SPOT-6 tiles of a total area of 45 km$^2$ for ever ground truth are given in table \ref{table:accuracy-bin}.
+Accuracy measures calculated on 5 SPOT-6 tiles of a total area of 45 km$^2$ for ever ground truth are given in table \ref{table:accuracy-bin\region}.
 \begin{table}[H]
-\centering
-\begin{tabular}{llp{1.5cm}llp{1.5cm}}
-\toprule
-\textbf{Classification} & \textbf{Ground Truth} & \textbf{F-Score Buildings} & \textbf{Kappa} & \textbf{OA} & \textbf{IU buildings} \\\hline\hline
-\multirow{3}{*}{Binary Regularization Input} & BDTOPO & 86.7 & 83.2 & 94.5 & 84.9\\
- & OSO & 56.8 & 50.1 & 86.8 & 62.6\\
- & OSM & 58.3 & 51.9 & 87.3 & 63.6\\\hline
-\multirow{3}{*}{Binary Sentinel-2 Input} & BDTOPO & 65.2 & 56.4 & 85.9 & 66.1 \\
- & OSO & 63.9 & 58.3 & 89.3 & 67.4\\
- & OSM & 52.6 & 45.5 & 86.0 & 60.3\\\hline
-\multirow{3}{*}{Fusion Min} & BDTOPO & 79.8 & 75.2 & 92.4 &  78.3 \\
-& OSO & 66.9 & 62.2 & 91.2 & 70.1\\
- & OSM & 62.9 & 57.6 & 90.2 &  67.4 \\\hline
- \multirow{3}{*}{Regularization} & BDTOPO & 79.7 & 75.1 & 92.5 & 78.7 \\
- & OSO & 67.4 & 62.8 & 91.5 & 70.5 \\
- & OSM & 64.4 & 59.4 & 90.7 & 68.4 \\\hline
- \multirow{3}{*}{Segmentation (cut=8)} & BDTOPO & 68.6 & 62.5 & 89.3 & 70.1 \\
- & OSO & 65.0 & 60.5 & 91.9 & 69.4 \\
- & OSM & 65.3 & 60.9 & 92.0 & 69.6\\\bottomrule
-\end{tabular}
-\caption{Accuracy measures for Artificialized Area: F-Score for the buildings class, Kappa, Overall Accuracy (OA) and Intersection over Union (IU) for the buildings class.}
-\label{table:accuracy-bin}
+	\centering
+	\begin{tabular}{llp{1.5cm}llp{1.5cm}}
+		\toprule
+		\textbf{Classification} & \textbf{Ground Truth} & \textbf{F-Score Buildings} & \textbf{Kappa} & \textbf{OA} & \textbf{IoU buildings}		\\\hline
+		\multirow{3}{*}{Binary Regularization Input}& BDTOPO & 86.7 & 83.2 & 94.5 & 76.5 \\
+		& OSO & 56.8 & 50.1 & 86.8 & 39.7 \\
+		& OSM & 58.3 & 51.9 & 87.3 & 41.2 \\\hline
+		\multirow{3}{*}{Binary Sentinel-2 Input}& BDTOPO & 65.2 & 56.4 & 85.9 & 48.3 \\
+		& OSO & 63.9 & 58.3 & 89.3 & 46.9 \\
+		& OSM & 52.6 & 45.5 & 86.0 & 35.7 \\\hline
+		\multirow{3}{*}{Fusion Min}& BDTOPO & 79.8 & 75.2 & 92.4 & 66.3 \\
+		& OSO & 66.9 & 62.2 & 91.2 & 50.3 \\
+		& OSM & 62.9 & 57.6 & 90.2 & 45.9 \\\hline
+		\multirow{3}{*}{Regularization}& BDTOPO & 79.7 & 75.1 & 92.5 & 66.2 \\
+		& OSO & 67.4 & 62.8 & 91.5 & 50.9 \\
+		& OSM & 64.4 & 59.4 & 90.7 & 47.4 \\\hline
+		\multirow{3}{*}{Segmentation (cut=8)}& BDTOPO & 68.6 & 62.5 & 89.3 & 52.2 \\
+		& OSO & 65.0 & 60.5 & 91.9 & 48.1 \\
+		& OSM & 65.3 & 60.9 & 92.0 & 48.5 \\\hline
+		\bottomrule
+	\end{tabular}
+	\caption{Accuracy measures for Artificialized Area: F-Score for the buildings class, Kappa, Overall Accuracy (OA) and Intersection over Union (IoU) for the buildings class.}
+	\label{table:accuracy-bin\region}
 \end{table}
 The dilated BDTOPO ground truth generally yields highest accuracy measures, showing the strongest correspondence with the binary classifications. The Fusion and Regularization improve the accuracy measures over the individual input classifications. The segmentation in most cases reduces the accuracy scores because it tends to reduce the extent of the areas classified as artificialized and all ground truth maps over-estimate the artificialized area.
 
@@ -984,7 +986,11 @@ The dilated BDTOPO ground truth generally yields highest accuracy measures, show
 In addition to the small-scale visualizations shown, the same results were also produced for the entire area covered by both data sets, spanning 648 $km^2$, although accuracy measures for the classification were not produced for the entire area. They showed some interesting classification results in the Northern part which was cloudy in some of the Sentinel-2 image, producing confusions between urban areas and water (appendix \ref{app:subsec:entire_area}).
 
 \subsection{Other zones}\label{subsec:otherZones}
-
+The following section presents results of the processing chain applied to other study zones:
+\begin{itemize}
+    \item Finistère, where the initial classifiers produce better results in terms of class confusions
+    \item Gironde, where classifiers behave differently due to different spectral response.  
+\end{itemize}
 \subsubsection{Finistère}
 The figures below show the results of using the same processing chain as described in the methodology in a zone having less class confusions in the initial classifications.
 
@@ -1002,6 +1008,9 @@ The figures below show the results of using the same processing chain as describ
 \figureTile
 \figureGT
 \figureOrigClass
+
+The initial classifiers behave differently in Gironde, which has a more vineyards and agricultural areas. The less distinctive spectral signature of vineyards causes more class confusion in the Sentinel-2 RF classifier than in the SPOT-6 DCNN classifier, which uses the texture by taking into account a pixel's neighborhood. In the initial Sentinel-2 classification, the roads are confused with buildings (northern part)
+
 \begin{figure}[H]
     \centering 
     \begin{subfigure}{0.49\textwidth}
@@ -1017,9 +1026,11 @@ The figures below show the results of using the same processing chain as describ
         \label{fig:fusion_svmt2buf\tile}
     \end{subfigure}
     \legendebuf
-    \caption{Fusion rules considered}
+    \caption{Fusion rules}
     \label{fig:fusion\tile}
 \end{figure}
+The Min classifier produces patchy building contours, similar to the initial classifications on the  SPOT-6 and Sentinel-2 images. The SVM-t2 classifier manages to follow individual building contours more closely, however it loses some buildings in the northern part of the considered area.
+
 \figureFusionRegul
 \figureBinRegulSeg
 
@@ -1029,7 +1040,70 @@ Following differences with with respect to the Finistère region can be underlin
     The fusion
     \item The only fusion metric that manages to get rid of the buildings is the fusion by classification, using a sixth buffer class (fig. \ref{fig:fusion\tile})
 \end{itemize}
-% TODO evaluation numbers
+5-class accuracy measures and binary classification accuracies over six tiles of a total area of 54 $km^2$ are given in tables \ref{table:eval\region} and \ref{table:accuracy-bin\region}. 
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{p{1.8cm}llllll}\toprule
+		 \multicolumn{2}{c}{\textbf{Classification}}& \textbf{Kappa} [\%] & \textbf{OA} [\%] & \textbf{AA}[\%] & \textbf{Fm} [\%] & \textbf{Fb} [\%]\\\hline
+		\multirow{2}{*}{Direct}	& S2 & 59.9 & 78.7 & 72.4 & 60.4 & 72.1 \\
+		& SPOT6 & 42.6 & 63.2 & 75.7 & 53.5 & 67.5 \\\hline
+		\multirow{20}{*}{Fusion} & Bayes & 56.2 & 75.0 & 79.0 & 60.7 & 77.0 \\
+		& Fuzzy: Compromise & 60.2 & 78.4 & 78.3 & 61.6 & 76.2 \\
+		& Fuzzy: Compromise WO & 60.2 & 78.4 & 78.3 & 61.6 & 76.2 \\
+		& DS MasseSomme & 53.7 & 72.9 & 78.8 & 60.0 & 77.1 \\
+		& DS V1 & 56.6 & 75.4 & 79.0 & 60.7 & 76.9 \\
+		& DS V2 & 55.5 & 74.4 & 78.9 & 60.5 & 77.0 \\
+		& Marg in Bayes Weighted & 52.6 & 71.9 & 78.2 & 59.6 & 76.7 \\
+		& Marge Max & 50.2 & 69.8 & 77.6 & 58.4 & 76.0 \\
+		& Marge Sum weighted & 50.8 & 70.3 & 77.8 & 58.8 & 76.3 \\
+		& Max & 49.5 & 69.0 & 77.5 & 58.4 & 76.5 \\
+		& Min & 60.4 & 78.5 & 78.5 & 61.6 & 76.5 \\
+		& Moyenne & 51.7 & 71.1 & 78.1 & 59.3 & 76.8 \\
+		& Prior1 & 42.6 & 63.2 & 75.7 & 53.5 & 67.5 \\
+		& Prior2 & 42.6 & 63.2 & 75.7 & 53.5 & 67.5 \\
+		& Compromise weighted & 64.2 & 81.5 & 78.1 & 62.8 & 74.6 \\
+		& Compromise WO weighted & 64.2 & 81.5 & 78.1 & 62.8 & 74.6 \\
+		& Max weighted & 48.9 & 68.4 & 77.3 & 58.1 & 76.7 \\
+		& Min weighted & 64.5 & 81.7 & 78.3 & 62.8 & 74.9 \\
+		& Prior1 weighted & 42.6 & 63.2 & 75.7 & 53.5 & 67.5 \\
+		& Prior2 weighted & 42.6 & 63.2 & 75.7 & 53.5 & 67.5 \\\hline
+		\multirow{3}{*}{\parbox{1.8cm}{Fusion by classification}} & rf & 69.9 & 86.1 & 71.2 & 64.1 & 83.5 \\
+		& svmt0 & 49.2 & 71.8 & 82.4 & 62.8 & 82.3 \\
+		& svmt2 & 53.6 & 75.3 & 72.2 & 60.2 & 81.1 \\\hline
+		\multirow{2}{*}{Regularization} 		& regul Min weighted & 62.4 & 80.2 & 76.8 & 61.8 & 75.8 \\
+		& regul svmt2 54.9 & 76.0 & 73.1 & 61.2 & 83.2 \\
+	\bottomrule
+	\end{tabular}
+	\caption{Gironde: 5-class evaluation}
+	\label{table:eval\region}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{llp{1.5cm}llp{1.5cm}}
+		\toprule
+		\textbf{Classification} & \textbf{Ground Truth} & \textbf{F-Score Buildings} & \textbf{Kappa} & \textbf{OA} & \textbf{IoU buildings}		\\\hline
+		\multirow{3}{*}{Binary Regularization Input}& BDTOPO & 84.6 & 72.2 & 86.0 & 73.3 \\
+		& OSO & 81.8 & 67.0 & 83.3 & 69.3 \\
+		& OSM & 63.1 & 44.9 & 71.9 & 46.1 \\\hline
+		\multirow{3}{*}{Binary Sentinel-2 Input}& BDTOPO & 84.6 & 73.4 & 86.9 & 73.3 \\
+		& OSO & 88.5 & 79.9 & 90.1 & 79.4 \\
+		& OSM & 66.9 & 51.5 & 76.7 & 50.3 \\\hline
+		\multirow{3}{*}{Fusion Min}& BDTOPO & 87.9 & 79.0 & 89.7 & 78.4 \\
+		& OSO & 87.9 & 78.9 & 89.6 & 78.5 \\
+		& OSM & 67.8 & 52.8 & 77.3 & 51.3 \\\hline
+		\multirow{3}{*}{Regularization}& BDTOPO & 88.8 & 80.6 & 90.5 & 79.8 \\
+		& OSO & 88.2 & 79.5 & 89.9 & 78.9 \\
+		& OSM & 68.6 & 54.1 & 78.0 & 52.2 \\\hline
+		\multirow{3}{*}{Segmentation (cut=8)}& BDTOPO & 88.0 & 79.7 & 90.1 & 78.6 \\
+		& OSO & 86.2 & 76.4 & 88.5 & 75.8 \\
+		& OSM & 70.5 & 57.1 & 79.9 & 54.4 \\\hline
+		\bottomrule
+	\end{tabular}
+	\caption{Accuracy measures for Artificialized Area: F-Score for the buildings class, Kappa, Overall Accuracy (OA) and Intersection over Union (IoU) for the buildings class.}
+	\label{table:accuracy-bin\region}
+\end{table}
 
 \renewcommand{\region}{finistere}
 \renewcommand{\tile}{41000_30000}
