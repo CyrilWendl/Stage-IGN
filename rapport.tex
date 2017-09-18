@@ -360,7 +360,6 @@ The following fusion rules based on fuzzy logic were considered:
     \end{equation}
     where $T_1=\frac{\min\big(P_A(x),P_B(x)\big)}{K}$ and $T_2=\max\big(P_A(x),P_B(x)\big)$, noticing that the operator behavior is conjunctive when the conflict between $A$ and $B$ is low ($1-K\approx 0$) and disjunctive when the conflict is high ($1-K\approx 1$). When the conflict is partial, the operator behaves in a compromise way \parencite{ouerghemmi_two-step_2017}.
     \item Compromise modified: Since a pure compromise fusion rule would favour $T_1$ at fusion level,  \cite{ouerghemmi_two-step_2017} propose to measure the intra-class conflict as $f_c=\abs(Cbest1-Cbest2)$ and set a conflict threshold $t_c=0.25$ to be used as follows:
-    
     \begin{algorithm}[H]
         \begin{algorithmic}
             \If {$f_c<t_c$} 
@@ -388,7 +387,7 @@ A very simple approach is to sum or multiply the input probabilities as a Bayesi
     P_{fusion}&=P_A(x)+P_B(x)\\
     P_{fusion}&=P_A(x)\times P_B(x)
 \end{align}
-Those fusion rules will be referred to as Bayesian Sum and Bayesian Product. Both methods were tested using the probabilities weighted by their margin as input (sec \ref{sec:margin}).
+Those fusion rules will be referred to as Bayesian Sum and Bayesian Product.
 \subsubsection{Margin-based Rule (Margin-Max)}\label{sec:margin}
 In the Max-Margin approach, the aim is to conserve the most confident source in each pixel, that is, the one having the least smallest margin:
 \begin{equation}
@@ -399,7 +398,7 @@ where $cbest1=\argmax_{c\in\mathcal{L}}P_S(C)$ and $cbest2=\argmax_{c\in\mathcal
     \forall x,\forall c\in \mathcal{L}\;\;\; P_{fusion}^{(c)}(x)=P_{S_{best}}^{(c)}(x)
 \end{equation}
 where $S_{best}=\argmax_{\mathcal{S}\in\mathcal{C}}margin^{(s)}(x)$.
-
+Fusion was carried out preferring the source with the highest margin (Margin Max) as well as using using the probability weighted by the margin for the Bayesian sum and product (Margin Bayesian Sum Weighted, Margin Bayesian Product Weighted).
 
 \subsubsection{Dempster-Shafer evidence theory}\label{sec:DS}
 According to the Dempster-Shafer (DS) formalism, an information from a source $s$ for a class $c$ can be given as a mass function $m_c\vert m_c\in [0,1]$ (\cite{shafer-evidence}). Dempster-Shafer's evidence theory rule assumes simple classes $c\in \mathcal{L}$ as well as composed classes, which were limited to at most two simple classes (\cite{ouerghemmi_two-step_2017}). Masses associated to each simple class are denoted simply the class membership probability:
@@ -493,7 +492,7 @@ $V(x,y,\varepsilon)$ being the term for contrast
     \begin{equation}
         V(x,y)=\frac{1}{dim}\sum_{i\in[0,dim]}V_i(x,y)^\varepsilon
     \end{equation}
-    Where $V_i(x,y)=\exp\Bigg(\frac{-\big(I_i(x)-I_i(y)\big)^2}{2\big(\overline{I_i(x)-I_i(y)}\big)^2}\Bigg)$
+    Where $V_i(x,y)=\exp\Bigg(\frac{-\big(I_i(x)-I_i(y)\big)^2}{2\big(\overline{I_i(x)-I_i(y)}\big)^2}\Bigg)$,, $dim$ being the dimension of the image $I_{MS}$, $I_i$ the intensity for pixel $x$ in the multispectral image.
     \item Option 2, based on \cite{schindler_overview_2012}:
     \begin{equation}
         \begin{aligned}
@@ -584,7 +583,9 @@ Following indicators were produced for each classification (\cite{deMorsier}):
 \section{Artificialized area}
 
 \subsection{Binary classification}
-Firstly, the binary class probabilities were extracted. A linearly decreasing function assigning a probability from 1 to 0 to be in an artificialized area was applied surrounding all buildings, reaching a probability of 0 to be in an artificialized area after a distance of 200 meters (fig. \ref{fig:regul_fusion_steps}).
+Firstly, the binary class probabilities were extracted. A linearly decreasing function assigning a probability from 1 to 0 to be in an artificialized area was applied surrounding all buildings, reaching a probability of 0 to be in an artificialized area after a distance of 200 meters (fig. \ref{fig:regul_fusion_steps}).\\
+
+A more sophisticated approach was tested taking into account the mean membership probability of the building class from the fusion result for each building instead of assigning the probability 1 within buildings, admitting that the class confusion in boundary regions is higher. However, the approach showed similar results and was not used further.
 
 \begin{figure}[H]
     \centering
@@ -660,17 +661,19 @@ $E_{data}$ is calculated based on the pixel value intensities $I$:
 \end{align}
 $I(u,v)$ being the intensity for at a given pixel coordinate $(u,v)$ and $I_R(u,v)$ being the mean intensity over this sub-region. The total energy term over a set of regions $\mathcal{R}$ is calculated as:
 \begin{align}
-    E_{total}=\sum_{R\in \mathcal{R}} E_{data}(R)+\lambda\sum_{R\in \mathcal{R}} E_{compl}(R)
+    E_{total}=\sum_{R\in \mathcal{R}} E_{data}^{(R)}+\lambda\sum_{R\in \mathcal{R}} E_{compl}^{(R)}
 \end{align}
-$\lambda$ is calculated as follows:
+One tries to minimize $E_{total}$, thus to make $\Delta E_{total}$ as small as possible. $\lambda$ is calculated as follows:
 \begin{equation}
     \begin{split}
-    0=&E_{data}(R_1\cup R_2)+\lambda E_{compl}(R_1\cup R_2)\\
-    &-E_{data}(R_1)-E_{data}(R_2)-\lambda\big(E_{compl}(R_1)+E_{compl}(R_2)\big)
+    \Delta E_{total}=&E_{data}^{(R_1\cup R_2)}+\lambda E_{compl}^{(R_1\cup R_2)}\\
+    &-E_{data}^{(R_1)}-E_{data}^{(R_2)}-\lambda\big(E_{compl}^{(R_1)}+E_{compl}^{(R_2)}\big)\\
+    =&(E_{data}^{(R_1\cup R_2)} - E_{data}^{(R_1)} - E_{data}^{(R_2)})\\
+    &+\lambda\big(E_{compl}^{(R_1\cup R_2)}-E_{compl}^{(R_1)}+E_{compl}^{(R_2)}\big)
     \end{split}
 \end{equation}
 \begin{equation}
-    \therefore \lambda=\frac{E_{data}(R_1)+E_{data}(R_2)-E_{data}(R_1\cup R_2)}{E_{compl}(R_1\cup R_2) -E_{compl}(R_1)-E_{compl}(R_2)}
+    \therefore \lambda=\frac{E_{data}^{(R_1)}+E_{data}^{(R_2)}-E_{data}^{(R_1\cup R_2)}}{E_{compl}^{(R_1\cup R_2)} -E_{compl}^{(R_1)}-E_{compl}^{(R_2)}}
 \end{equation}
 
 With each fusion of two segmented regions, $\lambda$ will increase. The CUT parameter sets a threshold on $\lambda$ for which merging of sub-regions stops.
@@ -1061,9 +1064,9 @@ Following differences with with respect to the Finistère region can be underlin
 		\multirow{2}{*}{\parbox{1.8cm}{Fusion: Dempster-Shafer}}& DS Sum Mass & 53.7 & 72.9 & 78.8 & 60.0 & 77.1 \\
 		& DS V1 & 56.6 & 75.4 & 79.0 & 60.7 & 76.9 \\
 		& DS V2 & 55.5 & 74.4 & 78.9 & 60.5 & 77.0 \\\hline
-		\multirow{3}{*}{\parbox{1.8cm}{Fusion: Margin}} & Margin Bayes Weighted & 52.6 & 71.9 & 78.2 & 59.6 & 76.7 \\
+		\multirow{3}{*}{\parbox{1.8cm}{Fusion: Margin}} & Margin Bayesian Product & 52.6 & 71.9 & 78.2 & 59.6 & 76.7 \\
 		& Margin Max & 50.2 & 69.8 & 77.6 & 58.4 & 76.0 \\
-		& Margin Sum weighted & 50.8 & 70.3 & 77.8 & 58.8 & 76.3 \\\hline
+		& Margin Bayesian Sum & 50.8 & 70.3 & 77.8 & 58.8 & 76.3 \\\hline
 		\multirow{3}{*}{\parbox{1.8cm}{Fusion: classification}} & RF & 69.9 & 86.1 & 71.2 & 64.1 & 83.5 \\
 		& SVM-t0 & 49.2 & 71.8 & 82.4 & 62.8 & 82.3 \\
 		& SVM-t2 & 53.6 & 75.3 & 72.2 & 60.2 & 81.1 \\\hline
